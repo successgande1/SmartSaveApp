@@ -16,9 +16,9 @@
 <main class="ttr-wrapper">
     <div class="container-fluid">
         <div class="db-breadcrumb">
-            <h4 class="breadcrumb-title" style="color: rgb(4, 149, 16);">{{user.username}} Profile</h4>
+            <h4 class="breadcrumb-title" style="color: rgb(4, 149, 16);"> {{user.profile.role|capfirst}} - {{user.username|capfirst}} Profile</h4>
             <ul class="db-breadcrumb-list">
-                <li><a href="#"><i class="fa fa-home"></i>Home</a></li>
+                <li><a href="#"><i class="fa fa-home"></i>Home</a></li> 
                 <li style="color: blue;">{{user.username}} Profile</li>
             </ul>
         </div>	
@@ -44,32 +44,33 @@
                                <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-8">
-                                          <span class="h4">Profile Information</span><a class="btn btn-info btn-sm float-right" href="{% url 'user-profile-update' %}">Edit</a>
+                                          <span class="h4">Profile Information</span><a class="btn btn-info btn-sm float-right" href="{% url 'accounts-profile-update' %}">Edit</a>
                                           <hr>
                                         <table class="table bg-white table-borderless">
                                             <tbody>
                                                   <tr>
                                                     <th scope="row">Name</th>
-                                                    <td>{{user.username}}</td>
+                                                    <td>{{user.profile.full_name|capfirst}}</td>
                                                   </tr>   
                                                   <tr>
                                                     <th scope="row">Phone</th>
                                                     <td>{{user.profile.phone}}</td>                                   
                                                   </tr>  
-                                                  <tr>
-                                                    <th scope="row">Email</th>
-                                                    <td>{{user.email}}</td>                                   
-                                                  </tr>  
+                                     
                                                   <tr>
                                                     <th scope="row">Address</th>
-                                                    <td>{{user.profile.address}}</td>                                   
+                                                    <td>{{user.profile.address|capfirst}}</td>                                   
                                                   </tr>                   
                                              </tbody>
                                         </table>
                                     </div>
                                     <div class="col-md-4">
-                                        <img class="img-thumbnail" src="" alt="profile image">
-                                    </div>
+                                      {% if user.profile.image %}
+                                        <img class="img-thumbnail" src=" {{ user.profile.image.url }} " alt="profile image">
+                                      {% else %}
+                                      No image available
+                                      {% endif %}
+                                      </div>
                                 </div>
                                </div>
                            </div>

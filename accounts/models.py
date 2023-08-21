@@ -1,4 +1,3 @@
-from imagekit.processors import ResizeToFill, Transpose
 from django.db import models
 from django.contrib.auth.models import User
 from phonenumber_field.modelfields import PhoneNumberField
@@ -9,7 +8,7 @@ from uuid import UUID
 from imagekit.models import ProcessedImageField
 from django.core.exceptions import ValidationError
 from django.utils.deconstruct import deconstructible
-
+from imagekit.processors import ResizeToFill, Transpose
 
 #File Extension Validator
 @deconstructible
@@ -26,9 +25,9 @@ class FileExtensionValidator:
 
 image_extensions = ['jpeg', 'jpg', 'gif', 'png']
 
-class UserProfile(models.Model):
-    staff = models.OneToOneField(User, on_delete=models.CASCADE)
-    role = models.CharField(max_length=20)  # 'admin', 'cashier', 'customer'
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    role = models.CharField(max_length=20, blank=True)  # 'admin', 'cashier', 'customer'
     full_name = models.CharField(max_length=60, blank=True)
     phone = PhoneNumberField()
     address = models.CharField(max_length=160, blank=True)
@@ -43,6 +42,6 @@ class UserProfile(models.Model):
     last_updated = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f'{self.staff.username}-Profile'
+        return f'{self.user.username}-Profile'
 
 

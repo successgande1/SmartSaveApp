@@ -12,11 +12,8 @@ from json import JSONEncoder
 class Customer(models.Model):
     customer = models.OneToOneField(User, on_delete=models.CASCADE)
     account_number = models.CharField(max_length=10, null=True)
-    full_name = models.CharField(max_length=60, blank=True)
-    phone = PhoneNumberField()
-    address = models.CharField(max_length=160, blank=True)
     account_balance = models.DecimalField(max_digits=10, decimal_places=2)
-    added_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='added_customer')
+    added_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='added_customer', blank=True)
     created_date = models.DateTimeField(auto_now_add=True, null=True) 
 
     def __str__(self):

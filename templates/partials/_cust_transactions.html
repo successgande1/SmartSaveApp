@@ -2,34 +2,7 @@
 
 <div class="row">
     <!-- Your Profile Views Chart -->
-    <div class="col-lg-6 m-b30">
-        <div class="widget-box">
-            <div class="wc-title">
-                <h4>New Users</h4>
-            </div>
-            <div class="widget-inner">
-                <div class="new-user-list">
-                    <ul>
-                        {% for worker in workers %}
-                        <li>
-                            <span class="new-users-pic">
-                                <img src="{{ worker.profile.image.url }}" alt=""/>
-                            </span>
-                            <span class="new-users-text">
-                                <a href="#" class="new-users-name">{{ worker.username }} </a>
-                                <span class="new-users-info">{{ worker.profile.position }} </span>
-                            </span>
-                            <span class="new-users-btn">
-                                <a href="#" class="btn button-sm outline">View Profile</a>
-                            </span>
-                        </li>
-                        {% endfor %}
-                      
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
+   
     <div class="col-lg-6 m-b30">
         <div class="widget-box">
             <div class="wc-title">

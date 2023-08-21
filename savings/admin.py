@@ -3,7 +3,7 @@ from . models import *
 # Register your models here.
 
 class CustomerAdmin(admin.ModelAdmin):
-    list_display = ('customer', 'account_number', 'full_name', 'phone', 'address', 'account_balance', 'added_by', 'created_date')
+    list_display = ('customer', 'account_number', 'account_balance', 'added_by', 'created_date')
     list_per_page = 6
 admin.site.register(Customer, CustomerAdmin)
 
