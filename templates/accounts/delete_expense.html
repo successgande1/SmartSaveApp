@@ -1,0 +1,33 @@
+{% extends 'dashboard_base.html' %}
+
+{% block title %} Delete Income {% endblock %}
+
+{% block content %}
+<div class="container p-5">
+    <div class="row mt-5">
+        <div class="col-md-6 offset-md-3">
+            <div class="border bg-white p-3">
+                <h3>Delete Item</h3>
+                <hr>
+               
+               <div class="alert alert-danger">
+                   
+                   <h5>Sure to Delete '{{ expense_item.description }}' Expenditure Item?</h5>
+                  
+               </div>
+               
+               <form method="POST">
+                   {% csrf_token %} 
+
+                   {{ form }}
+
+                <a class="btn btn-secondary" href="">Cancel</a>
+
+                   <input class="btn btn-danger" type="submit" value="Confirm">
+               </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

@@ -8,3 +8,9 @@ import json
 # 404 Error Page.
 def custom_page_not_found(request, exception=None):
     return render(request, 'accounts/404.html', status=404)
+
+def index(request):
+    context = {
+        'page_title':"Dashboard"
+    }
+    return render(request, 'accouns/index.html', context)

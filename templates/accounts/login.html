@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %} User Login {% endblock %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+
+<div class="page-wraper">
+	<div id="loading-icon-bx"></div>
+	<div class="account-form">
+		<div class="account-head" style="background-image:url(assets/images/background/bg2.jpg);"> 
+			<a href="#"><img src="{% static 'assets/images/logo-white-2.png' %}" alt=""></a>
+		</div>
+		<div class="account-form-inner">
+			<div class="account-container">
+				<div class="heading-bx left">
+					<h2 class="title-head">Login to your <span>Account</span></h2>
+					
+				</div>	
+				<form class="contact-bx" method="POST">
+					{% csrf_token %}
+
+                    {{ form | crispy }}
+
+                    <input class="btn btn-success" type="submit" value="login">
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+
+{% endblock %}

@@ -151,3 +151,7 @@ MESSAGE_TAGS = {
 
     messsages.ERROR: 'danger'
 }
+
+LOGIN_REDIRECT_URL = 'accounts-dashboard'
+
+LOGIN_URL = 'accounts-login'
