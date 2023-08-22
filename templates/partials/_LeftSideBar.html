@@ -34,6 +34,12 @@
                     </a>
                 </li>
                 <li>
+                    <a href="" class="ttr-material-button">
+                        <span class="ttr-icon"><i class="ti-book"></i></span>
+                        <span class="ttr-label"> Withdrawal Request</span>
+                    </a>
+                </li>
+                <li>
                     <a href="#" class="ttr-material-button">
                         <span class="ttr-icon"><i class="ti-email"></i></span>
                         <span class="ttr-label">Reports</span>
@@ -41,19 +47,19 @@
                     </a>
                     <ul>
                         <li>
-                            <a href="" class="ttr-material-button"><span class="ttr-label">Search Income By Date</span></a>
+                            <a href="" class="ttr-material-button"><span class="ttr-label">Deposit</span></a>
                         </li>
 
                         <li>
-                            <a href="" class="ttr-material-button"><span class="ttr-label">Generate Report</span></a>
+                            <a href="" class="ttr-material-button"><span class="ttr-label">Withdrawal</span></a>
                         </li>
 
                         <li>
-                            <a href="" class="ttr-material-button"><span class="ttr-label">View All Income</span></a>
+                            <a href="" class="ttr-material-button"><span class="ttr-label">Withdrawal Request</span></a>
                         </li>
                         
                         <li>
-                            <a href="" class="ttr-material-button"><span class="ttr-label">View All Expenditures</span></a>
+                            <a href="" class="ttr-material-button"><span class="ttr-label">Staff Report</span></a>
                         </li>
 
                         <li>
@@ -68,7 +74,12 @@
 
                 {% elif user.is_authenticated and user.profile.role == 'manager' or user.profile.role == 'cashier' %}
 
-                
+                <li>
+                    <a href=" {% url 'savings-account' %} " class="ttr-material-button">
+                        <span class="ttr-icon"><i class="ti-book"></i></span>
+                        <span class="ttr-label"> Create Account</span>
+                    </a>
+                </li>
              
                 <li>
                     <a href="" class="ttr-material-button">

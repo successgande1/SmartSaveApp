@@ -22,7 +22,7 @@ from django.urls import path, include
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('accounts.urls')),
-    # path('', include('savings.urls')), 
+    path('', include('savings.urls')), 
     path('404/', custom_page_not_found, name='custom_404'),
     path('403/', custom_page_forbidden, name='custom_403'),
     path('500/', custom_server_not_found, name='custom_500'),

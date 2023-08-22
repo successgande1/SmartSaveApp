@@ -7,7 +7,6 @@ import json
 from django.db.models import Count, Sum
 import datetime
 from .models import Profile
-from django.contrib.auth import logout
 from django.contrib.auth.views import LoginView
 from.forms import *
 from django.contrib.auth import login, authenticate

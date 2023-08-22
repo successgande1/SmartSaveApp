@@ -18,7 +18,13 @@
 <main class="ttr-wrapper">
     <div class="container-fluid">
         <div class="db-breadcrumb">
-            <h4 class="breadcrumb-title" style="color: rgb(4, 149, 16);">Hello! {{user.profile.role |capfirst}} - {{ user.username }} </h4>
+            <h4 class="breadcrumb-title" style="color: rgb(4, 149, 16);">Hello! 
+                {% if user.profile.role == ''  %}
+                Super admin
+                {% else  %}
+                {{user.profile.role |capfirst}} 
+                {% endif %}
+                - {{ user.username }} </h4>
             <ul class="db-breadcrumb-list">
                 <li><a href="#"><i class="fa fa-home"></i>Home</a></li>
                 <li style="color: blue;">Dashboard</li> 
@@ -29,19 +35,19 @@
         {% if  user.is_authenticated and user.profile.role == 'admin' or user.is_superuser %}
         
           <!-- Card -->
-          {% include 'partials/_cards.html' %}
+          {% include 'partials/_admin_cards.html' %}
           <!-- Card END -->
 
-          {% include 'partials/_user_list.html' %}
+          {% include 'partials/_transaction_list.html' %}
         
-
+        <!--Check if User is login and is also a manager or Cashier-->
         {% elif user.is_authenticated and user.profile.role == 'manager' or user.profile.role == 'cashier' %}
 
         {% include 'partials/_staff_cards.html' %}
 
-        {% include 'partials/_user_list.html' %}
+        {% include 'partials/_transaction_list.html' %}
 
-        
+        <!--Check if User is login and is also a customer-->
         {% elif user.is_authenticated and user.customer.customer %}
 
         {% include 'partials/_cust_cards.html' %}
