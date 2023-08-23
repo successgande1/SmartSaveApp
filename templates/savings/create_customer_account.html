@@ -36,26 +36,91 @@
         
 
         {% else %}
-
-        <div class="col-lg-12 m-b30">
+        <div class="container">
+            <div class="row">
                 {% include 'partials/_alerts.html' %}
-                <div class="widget-box">
+                <!--Customer Account Creation Form-->
+                <div class="col-lg-6 m-b30">
                     
-                    <div class="wc-title">
-                        <h4 style="color: blue;"> {{page_title}} </h4>
-                    </div>
-                    <div class="widget-inner">
-                        <form class="edit-profile m-b30" method="POST">
-                            {% csrf_token %}
-
-                            {{ form | crispy }}
-                    
-                    <input class="btn btn-success" type="submit" value="Create Account">
-
-                        </form>
+                    <div class="widget-box">
+                        
+                        <div class="wc-title">
+                            <h4 style="color: blue;"> {{page_title}} </h4>
+                        </div>
+                        <div class="widget-inner">
+                            <form class="edit-profile m-b30" method="POST">
+                                {% csrf_token %}
+    
+                                {{ form | crispy }}
+                        
+                        <input class="btn btn-success" type="submit" value="Create Account">
+    
+                            </form>
+                        </div>
                     </div>
                 </div>
+
+                <!--Recent Customer Accounts-->
+                <div class="col-lg-6 m-b30">
+                    <div class="table-responsive mb-8">
+                        {% if customers %}
+                          <table class="table bg-white">
+                              <thead class="bg-info text-white">
+                                <tr>
+                                  <th scope="col">#</th>
+                                  <th scope="col" style="color: white;">Acct. Name</th>
+                                
+                                  <th scope="col" style="color: white;" nowrap>Acct. No.</th>
+                                  
+                                  <th scope="col" style="color: white;">Bal.</th>
+                                  
+                                  <th scope="col" style="color: white;">Action</th>
+                                 
+                                </tr>
+                              </thead>
+                              <tbody>
+                                
+              
+                                {% for customer in customers %}
+                                <tr>
+                                  <th scope="row">{{ forloop.counter }}</th>
+                                  <td>{{ customer.customer.profile.full_name }}</td>
+                                 
+                                  <td>#{{ customer.account_number }}</td>
+                                  
+                                  <td>N{{ customer.account_balance }}</td>
+                                  
+                                  <td>
+                                    
+                                      <a class="btn btn-info small-anchor" href="">Deposit</a>
+                                      
+                                    
+                                  </td>
+                                </tr>
+                                {% endfor %}    
+                                <tr><td nowrap></td></tr>    
+                                
+                              </tbody>
+                          </table>
+                            <a class="btn btn-secondary" href="" target="_blank">View Customers</a>
+                        {% else %}  
+                             <span style="text-align: center; color:red;">No Customer Yet</span>    
+                        {% endif %}
+                          </div>
+                      </div>
+                </div>
+
+
+
             </div>
+
+        </div>
+        
+
+        
+        
+
+        
         
         {% endif %}
 

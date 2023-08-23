@@ -11,6 +11,8 @@ from.forms import *
 # Create your views here.
 @login_required(login_url='accounts-login')
 def create_customer(request):
+    #Get Customers
+    customers = Customer.objects.order_by('-created_date')[:5]
     if request.method == 'POST':
         form = CustomerCreationForm(added_by=request.user, data=request.POST)
         if form.is_valid():
@@ -25,6 +27,7 @@ def create_customer(request):
         form = CustomerCreationForm()
     
     context = {
+        'customers':customers,
         'page_title':'Create Account',
         'form': form
         }
