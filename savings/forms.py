@@ -60,3 +60,8 @@ class CustomerCreationForm(forms.ModelForm):
         if User.objects.filter(username=username).exists():
             raise forms.ValidationError("This username is already taken.")
         return username
+    
+class DepositForm(forms.ModelForm):
+    class Meta:
+        model = Transaction
+        fields = ['amount', 'transaction_remark']

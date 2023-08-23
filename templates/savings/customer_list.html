@@ -1,6 +1,6 @@
 {% extends 'dashboard_base.html' %}
 
-{% block title %} {{page_title}}{% endblock %}
+{% block title %} {{page_title}} {% endblock %}
 
 {% load static %}
 
@@ -93,7 +93,7 @@
                                   <td>
                                       
                                     <div class="button-container">
-                                     <a class="btn btn-info deposit-button" href="">Deposit</a>
+                                     <a class="btn btn-info deposit-button" href=" {% url 'customer_deposit' customer.pk %} ">Deposit</a>
 
                                       <a class="btn btn-info withdrawal-button" href="">Withdrawal</a>
                                     </div>

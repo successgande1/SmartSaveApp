@@ -15,6 +15,7 @@ class Customer(models.Model):
     account_balance = models.DecimalField(max_digits=10, decimal_places=2)
     added_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='added_customer')
     created_date = models.DateTimeField(auto_now_add=True, null=True) 
+    last_updated = models.DateTimeField(auto_now_add=False, null=True) 
 
     def __str__(self):
         return f' {self.customer} - Account No: {self.account_number}'
@@ -38,6 +39,14 @@ class Transaction(models.Model):
 
     def __str__(self):
         return f' {self.customer} - Transaction Type: {self.transaction_type}'
+    
+    def save(self, *args, **kwargs):
+        if not self.transaction_ref:
+            self.transaction_ref = str(uuid.uuid4())
+        super().save(*args, **kwargs)
+        self.customer.account_balance += self.amount
+        self.customer.last_updated = self.transaction_date
+        self.customer.save()
     
 class WithdrawalRequest(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)

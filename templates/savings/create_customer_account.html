@@ -6,10 +6,9 @@
 
 {% load crispy_forms_tags %}
 
+{% load humanize %}
+
 {% block content %}
-
-
-
 
 <!-- Left sidebar menu start -->
 {% include 'partials/_LeftSideBar.html' %}
@@ -88,11 +87,11 @@
                                  
                                   <td>#{{ customer.account_number }}</td>
                                   
-                                  <td>N{{ customer.account_balance }}</td>
+                                  <td>N{{ customer.account_balance|intcomma }}</td>
                                   
                                   <td>
                                     
-                                      <a class="btn btn-info small-anchor" href="">Deposit</a>
+                                      <a class="btn btn-info small-anchor" href="{% url 'customer_deposit' customer.pk %}">Deposit</a>
                                       
                                     
                                   </td>

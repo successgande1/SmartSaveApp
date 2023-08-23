@@ -34,6 +34,7 @@ def create_customer(request):
         }
     return render(request, 'savings/create_customer_account.html', context)
 
+#Customer List View
 @login_required(login_url='accounts-login')
 def customer_lsit(request):
     #Get list of customers
@@ -44,7 +45,34 @@ def customer_lsit(request):
     page_obj = paginator.get_page(page_number)
 
     context = {
-        'page_tile':'Customer List',
+        'page_title':'Customer List',
         'customers':page_obj,
     }
     return render(request, 'savings/customer_list.html', context)
+
+
+#Customer Deposit View
+@login_required(login_url='accounts-login')
+def customer_deposit(request, pk):
+    #Get the Customer by Product Key
+    customer = get_object_or_404(Customer, pk=pk)
+
+    if request.method == 'POST':
+        form = DepositForm(request.POST)
+        if form.is_valid():
+            transaction = form.save(commit=False)
+            transaction.customer = customer
+            transaction.transaction_type = 'deposit'
+            transaction.added_by = request.user
+            transaction.save()
+            deposited = form.cleaned_data['amount']
+        messages.success(request, f'N{deposited} Deposited Successfully for Acct. No:{customer.account_number}')
+        return redirect('customer_deposit', pk=pk)
+    else:
+        form = DepositForm()
+    context = {
+        'customer':customer,
+        'page_title':'Customer Deposit',
+        'form':form,
+    }
+    return render(request, 'savings/customer_deposit.html', context)

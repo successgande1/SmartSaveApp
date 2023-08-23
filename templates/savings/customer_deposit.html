@@ -1,0 +1,122 @@
+{% extends 'dashboard_base.html' %}
+
+{% block title %} {{page_title}}{% endblock %}
+
+{% load static %}
+
+{% load crispy_forms_tags %}
+
+{% load humanize %}
+
+{% block content %}
+
+<!-- Left sidebar menu start -->
+{% include 'partials/_LeftSideBar.html' %}
+<!-- Left sidebar menu end -->
+
+<main class="ttr-wrapper">
+    <div class="container-fluid">
+        <div class="db-breadcrumb">
+            <h4 class="breadcrumb-title" style="color: rgb(4, 149, 16);">Hello! {{user.profile.role|capfirst}} {{ user.username }} </h4>
+            <ul class="db-breadcrumb-list">
+                <li><a href="#"><i class="fa fa-home"></i>Home</a></li>
+                <li style="color: blue;">{{page_title}}</li>
+            </ul>
+        </div>	
+
+        <!--Check if User is login and is also a staff and a superuser-->
+        {% if user.is_authenticated and user.is_staff and user.is_superuser %}
+        
+        <!-- Card -->
+        {% include 'partials/_cards.html' %}
+        <!-- Card END -->
+
+        {% include 'partials/_user_list.html' %}
+        
+
+        {% else %}
+        <div class="container">
+            <div class="row">
+                {% include 'partials/_alerts.html' %}
+
+                <!--Customer Details-->
+            
+                    <div class="col-md-6"> 
+                        <div class="card">
+                            <div class="card-header bg-info text-white">
+                             {{ customer.customer.profile.user }} Profile
+                            </div>
+                            <div class="card-body">
+                             <div class="row">
+                                 <div class="col-md-8">
+                                       <span class="h4">Profile Information</span><a class="btn btn-info btn-sm float-right" href="{% url 'accounts-profile-update' %}">Edit</a>
+                                       <hr>
+                                     <table class="table bg-white table-borderless">
+                                         <tbody>
+                                               <tr>
+                                                 <th scope="row">Name</th>
+                                                 <td>{{customer.customer.profile.full_name|capfirst}}</td>
+                                               </tr>   
+                                               <tr>
+                                                 <th scope="row">Phone</th>
+                                                 <td>{{customer.customer.profile.phone}}</td>                                   
+                                               </tr>  
+                                  
+                                               <tr>
+                                                 <th scope="row">Address</th>
+                                                 <td>{{customer.customer.profile.address|capfirst}}</td>                                   
+                                               </tr>   
+                                               <tr>
+                                                <th scope="row">Account Balance</th>
+                                                <td>{{customer.account_balance|intcomma}}</td>                                   
+                                              </tr>                 
+                                          </tbody>
+                                     </table>
+                                 </div>
+                                 <div class="col-md-4">
+                                   {% if customer.customer.profile.image %}
+                                     <img class="img-thumbnail" src=" {{ customer.customer.profile.image.url }} " alt="profile image">
+                                   {% else %}
+                                   No image available
+                                   {% endif %}
+                                   </div>
+                             </div>
+                            </div>
+                        </div>
+                     </div>
+                  
+                <!--Customer Deposit Form-->
+                <div class="col-lg-6 m-b30">
+                    
+                    <div class="widget-box">
+                        
+                        <div class="wc-title">
+                            <h4 style="color: blue;"> 
+                          {{ customer.customer.profile.full_name }} <!-- Display customer name -->
+                        Account Balance: N{{ customer.account_balance }}
+                            </h4>
+                        </div>
+                        <div class="widget-inner">
+                            <form class="edit-profile m-b30" method="POST">
+                                {% csrf_token %}
+    
+                                {{ form | crispy }}
+                        
+                        <input class="btn btn-success" type="submit" value="Add Deposit">
+    
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+        
+        {% endif %}
+
+        
+    </div>
+</main>
+
+{% endblock %}
