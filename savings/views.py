@@ -15,7 +15,11 @@ def create_customer(request):
         form = CustomerCreationForm(added_by=request.user, data=request.POST)
         if form.is_valid():
             form.save()
-            messages.success(request, 'Account Created Successfully.')
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password']
+            account_number = form.cleaned_data['account_number']
+            account_balance = form.cleaned_data['account_balance']
+            messages.success(request, f'Deposit Acct. No: {account_number} for {username} with {password} Password and N{account_balance} Bal. Created Successfully.')
             return redirect('savings-account')
     else:
         form = CustomerCreationForm()

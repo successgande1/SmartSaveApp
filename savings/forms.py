@@ -2,6 +2,7 @@ from.models import Customer, Transaction, WithdrawalRequest
 from django import forms
 from django.forms import ModelForm
 from django.contrib.auth.models import User
+from accounts.models import Profile
 import random
 import secrets
 used_numbers = set()
@@ -10,8 +11,14 @@ used_numbers = set()
 class CustomerCreationForm(forms.ModelForm):
     username = forms.CharField(label='Username', required=True)
     password = forms.CharField(label='Password', widget=forms.PasswordInput, required=True)
-    account_balance = forms.DecimalField(label='Account Balance', required=True, initial=0.0, disabled=True)
+    phone = forms.CharField(label='Phone Number', required=True) #Form field form Profile Model
+    address = forms.CharField(label='Address', required=True)#Form field form Profile Model
+    full_name = forms.CharField(label='Full Name', required=True)#Form field form Profile Model
     account_number = forms.CharField(label='Account Number', required=True, disabled=True)
+    account_balance = forms.DecimalField(label='Account Balance', required=True, initial=0.0, disabled=True)
+    
+
+    
 
     class Meta:
         model = Customer
@@ -31,16 +38,23 @@ class CustomerCreationForm(forms.ModelForm):
         customer.account_number = self.cleaned_data['account_number']
         customer.account_balance = self.cleaned_data['account_balance']
         customer.save()
+
+        # Create or update the associated profile
+        profile, created = Profile.objects.get_or_create(user=user)
+        profile.full_name = self.cleaned_data['full_name']
+        profile.phone = self.cleaned_data['phone']
+        profile.address = self.cleaned_data['address']
+        profile.save()
+
         return customer
-    #6 Digits account number generation function
+
     def generate_unique_number(self):
         used_numbers = Customer.objects.values_list('account_number', flat=True)
         while True:
             unique_number = secrets.randbelow(900000) + 100000
             if unique_number not in used_numbers:
                 return str(unique_number)
-            
-    #Check the uniqueness of the created username and notify with message
+
     def clean_username(self):
         username = self.cleaned_data.get('username')
         if User.objects.filter(username=username).exists():
