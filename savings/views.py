@@ -11,6 +11,7 @@ from.forms import *
 # Create your views here.
 @login_required(login_url='accounts-login')
 def create_customer(request):
+    logged_user = request.user
     #Get Customers
     customers = Customer.objects.order_by('-created_date')[:5]
     if request.method == 'POST':
@@ -32,3 +33,18 @@ def create_customer(request):
         'form': form
         }
     return render(request, 'savings/create_customer_account.html', context)
+
+@login_required(login_url='accounts-login')
+def customer_lsit(request):
+    #Get list of customers
+    customers = Customer.objects.order_by('-created_date')
+     # Paginate the properties
+    paginator = Paginator(customers, 6)  # Show 6 properties per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        'page_tile':'Customer List',
+        'customers':page_obj,
+    }
+    return render(request, 'savings/customer_list.html', context)
