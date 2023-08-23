@@ -40,11 +40,10 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'accounts.apps.AccountsConfig',
     'savings.apps.SavingsConfig',
-    'humanize',
     'crispy_forms',
-    'django_humanize',
     'django_filters',
     'imagekit',
+    'django.contrib.humanize',
 ]
 
 MIDDLEWARE = [

@@ -13,7 +13,7 @@ from.forms import *
 def create_customer(request):
     logged_user = request.user
     #Get Customers
-    customers = Customer.objects.order_by('-created_date')[:5]
+    customers = Customer.objects.order_by('-created_date')[:10]
     if request.method == 'POST':
         form = CustomerCreationForm(added_by=request.user, data=request.POST)
         if form.is_valid():
@@ -39,7 +39,7 @@ def customer_lsit(request):
     #Get list of customers
     customers = Customer.objects.order_by('-created_date')
      # Paginate the properties
-    paginator = Paginator(customers, 6)  # Show 6 properties per page
+    paginator = Paginator(customers, 5)  # Show 6 properties per page
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 

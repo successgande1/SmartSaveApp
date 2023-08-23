@@ -1,4 +1,39 @@
+/***** TEXT SIZE ADJUST *****/
+html {
+    -webkit-text-size-adjust: 100%; 
+    -ms-text-size-adjust: 100%;
+}
+
+/***** BOX MODEL *****/
+* {  
+    -moz-box-sizing: border-box; 
+    -webkit-box-sizing: border-box; 
+    box-sizing: border-box; 
+    padding: 0;
+    margin: 0;
+}
+
 .small-anchor{
-    font-size: 0.3rem;
-    padding: 0.1rem 0.3rem;
+    font-size: 0.9rem;
+}
+
+.button-container{
+    display: flex;
+    align-items: center;
+}
+
+.button-container a{
+    margin-right: 10px;
+    padding: 5px 5px;
+    font-size: 1rem;
+    color: white;
+    font-family: sans-serif;
+}
+
+.deposit-button{
+    background-color: rgb(5, 193, 5);
+}
+
+.withdrawal-button{
+    background-color: rgb(189, 87, 18);
 }

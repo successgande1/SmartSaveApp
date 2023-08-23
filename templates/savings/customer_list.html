@@ -6,6 +6,8 @@
 
 {% load crispy_forms_tags %}
 
+{% load humanize %}
+
 {% block content %}
 
 
@@ -74,24 +76,27 @@
                                 <tr>
                                   <th scope="row">{{ forloop.counter }}</th>
 
-                                  <td>{{ customer.customer.profile.full_name }}</td>
+                                  <td wrap>{{ customer.customer.profile.full_name }}</td>
                                  
                                   <td>{{ customer.customer.profile.phone }}</td>
 
                                   <td>#{{ customer.account_number}}</td>
 
-                                  <td>{{ customer.customer.profile.address }}</td>
+                                  <td wrap>{{ customer.customer.profile.address }}</td>
 
                                   <td>{{ customer.added_by }}</td>
 
-                                  <td>{{ customer.created_date }}</td>
+                                  <td wrap>{{ customer.created_date|naturaltime }}</td>
 
-                                  <td>N{{ customer.account_balance }}</td>
+                                  <td>N{{ customer.account_balance|intcomma }}</td>
                                   
                                   <td>
-                                      <a class="btn btn-info small-anchor" href="">Deposit</a>
+                                      
+                                    <div class="button-container">
+                                     <a class="btn btn-info deposit-button" href="">Deposit</a>
 
-                                      <a class="btn btn-info small-anchor" href="">Withdrawal</a>
+                                      <a class="btn btn-info withdrawal-button" href="">Withdrawal</a>
+                                    </div>
                                       
                                   </td>
                                 </tr>
@@ -108,8 +113,26 @@
                       </div>
                 </div>
 
-
-
+            </div>
+            <!--Pagination-->
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="pagination-box">
+                        <ul class="pagination">
+                            {% if customers.has_previous %}
+                                <li><a href="?page=1"><i class="fa fa-angle-double-left"></i></a></li>
+                                <li><a href="?page={{ customers.previous_page_number }}">{{ customers.previous_page_number }}</a></li>
+                            {% endif %}
+                            
+                            <li class="active"><a href="?page={{ customers.number }}">{{ customers.number }}</a></li>
+                            
+                            {% if customers.has_next %}
+                                <li><a href="?page={{ customers.next_page_number }}">{{ customers.next_page_number }}</a></li>
+                                <li><a href="?page={{ customers.paginator.num_pages }}"><i class="fa fa-angle-double-right"></i></a></li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
             </div>
 
         </div>
