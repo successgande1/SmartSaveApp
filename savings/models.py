@@ -14,13 +14,14 @@ class Customer(models.Model):
     account_number = models.CharField(max_length=6, unique=True)
     account_balance = models.DecimalField(max_digits=10, decimal_places=2)
     added_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='added_customer')
+    service_charge = models.DecimalField(max_digits=10, decimal_places=2, default=200.00)
     created_date = models.DateTimeField(auto_now_add=True, null=True) 
     last_updated = models.DateTimeField(auto_now_add=False, null=True) 
 
     def __str__(self):
         return f' {self.customer} - Account No: {self.account_number}'
 
-class Transaction(models.Model):
+class Transaction(models.Model): 
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     transaction_type = models.CharField(max_length=16, blank=True)  # 'deposit', 'withdraw'
@@ -66,3 +67,11 @@ class WithdrawalRequest(models.Model):
 
     def __str__(self):
         return f' {self.customer} - Request Status: {self.is_approved}'
+    
+class ServiceCharge(models.Model):
+    charged_customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    charged_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    charged_date = models.DateField(auto_now_add=True, null=True)
+
+    def __str__(self):
+        return f'{self.charged_customer} - N{self.charged_amount} - Date: {self.charged_date}'

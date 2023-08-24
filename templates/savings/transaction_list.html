@@ -33,6 +33,13 @@
         <!-- Card -->
         {% include 'partials/_admin_cards.html' %} 
         <!-- Card END -->
+        <form action="{% url 'pages-index' %}" method="GET">
+            {% csrf_token %}
+            <div class="transaction-search-container">
+                <input type="text" id="search-input" placeholder="Search Transaction...">
+                <button id="search-button" type="submit">Search</button>
+            </div>
+        </form>
 
         <div class="container">
             <div class="row">
@@ -42,7 +49,7 @@
                 <!--Customer List-->
                 <div class="col-lg-12 m-b30">
                     <div class="table-responsive mb-8">
-                        {% if customers %}
+                        {% if transactions %}
                           <table class="table bg-white">
                               <thead class="bg-info text-white">
                                 <tr>
@@ -53,49 +60,49 @@
 
                                   <th scope="col" style="color: white;" nowrap>Acct No.</th>
 
-                                  <th scope="col" style="color: white;" nowrap>Address</th>
+                                  <th scope="col" style="color: white;" nowrap>Amount</th>
 
-                                  <th scope="col" style="color: white;" nowrap>Service Charge</th>
+                                  <th scope="col" style="color: white;" nowrap>Transaction Type</th>
 
-                                  <th scope="col" style="color: white;" nowrap>Added By</th>
-
-                                  <th scope="col" style="color: white;" nowrap>Created Date</th>
+                                  <th scope="col" style="color: white;" nowrap>Transaction Date</th>
                                   
-                                  <th scope="col" style="color: white;">Bal.</th>
+                                  <th scope="col" style="color: white;">Transaction ID</th>
+
+                                  <th scope="col" style="color: white;" nowrap>Done By</th>
                                   
-                                  <th scope="col" style="color: white;">Action</th>
+                                  <th scope="col" style="color: white;">Remark</th>
                                  
                                 </tr>
                               </thead>
                               <tbody>
                                 
               
-                                {% for customer in customers %}
+                                {% for transaction in transactions %}
                                 <tr>
                                   <th scope="row">{{ forloop.counter }}</th>
 
-                                  <td wrap>{{ customer.customer.profile.full_name }}</td>
+                                  <td nowrap>{{ transaction.customer.profile.full_name }}</td>
                                  
-                                  <td>{{ customer.customer.profile.phone }}</td>
+                                  <td>{{ transaction.customer.customer.profile.phone }}</td>
 
-                                  <td>#{{ customer.account_number}}</td>
+                                  <td>#{{ transaction.customer.account_number}}</td>
 
-                                  <td wrap>{{ customer.customer.profile.address }}</td>
+                                  <td>N{{ transaction.amount|intcomma }}</td>
 
-                                  <td wrap>N{{ customer.service_charge }}</td>
+                                  <td>{{ transaction.transaction_type|capfirst }}</td>
 
-                                  <td>{{ customer.added_by }}</td>
+                                  <td nowrap>{{ transaction.transaction_date|naturaltime }}</td>
 
-                                  <td wrap>{{ customer.created_date|naturaltime }}</td>
+                                  <td nowrap>{{ transaction.transaction_ref }}</td>
 
-                                  <td>N{{ customer.account_balance|intcomma }}</td>
+                                  <td nowrap>{{transaction.added_by}}</td> 
                                   
                                   <td>
                                       
                                     <div class="button-container">
-                                     <a class="btn btn-info deposit-button" href=" {% url 'customer_deposit' customer.pk %} ">Deposit</a>
+                                     <a class="btn btn-info deposit-button" href="">{{transaction.transaction_remark}}</a>
 
-                                      <a class="btn btn-info withdrawal-button" href="">Withdrawal</a>
+                                      
                                     </div>
                                       
                                   </td>
@@ -107,7 +114,7 @@
                           </table>
                             
                         {% else %}  
-                             <span style="text-align: center; color:red;">No Customer Yet</span>    
+                             <span style="text-align: center; color:red;">No Transaction Yet</span>    
                         {% endif %}
                           </div>
                       </div>
@@ -119,16 +126,16 @@
                 <div class="col-md-12">
                     <div class="pagination-box">
                         <ul class="pagination">
-                            {% if customers.has_previous %}
+                            {% if transactions.has_previous %}
                                 <li><a href="?page=1"><i class="fa fa-angle-double-left"></i></a></li>
-                                <li><a href="?page={{ customers.previous_page_number }}">{{ customers.previous_page_number }}</a></li>
+                                <li><a href="?page={{ transactions.previous_page_number }}">{{ transactions.previous_page_number }}</a></li>
                             {% endif %}
                             
-                            <li class="active"><a href="?page={{ customers.number }}">{{ customers.number }}</a></li>
+                            <li class="active"><a href="?page={{ transactions.number }}">{{ transactions.number }}</a></li>
                             
-                            {% if customers.has_next %}
-                                <li><a href="?page={{ customers.next_page_number }}">{{ customers.next_page_number }}</a></li>
-                                <li><a href="?page={{ customers.paginator.num_pages }}"><i class="fa fa-angle-double-right"></i></a></li>
+                            {% if transactions.has_next %}
+                                <li><a href="?page={{ transactions.next_page_number }}">{{ transactions.next_page_number }}</a></li>
+                                <li><a href="?page={{ transactions.paginator.num_pages }}"><i class="fa fa-angle-double-right"></i></a></li>
                             {% endif %}
                         </ul>
                     </div>
@@ -139,6 +146,21 @@
         
 
         {% elif user.is_authenticated and user.profile.role == 'manager' or user.profile.role == 'cashier' %}
+        <div class="transaction-search-container">
+            
+                <form action="{% url 'transaction-list' %}" method="GET">
+                    {% csrf_token %}
+
+                    {{ form | crispy }}
+                    
+                        <input class="btn btn-success" type="submit" value="Search">
+                   
+                    
+                </form>
+
+            
+
+        </div>
         <div class="container">
             <div class="row">
                 {% include 'partials/_alerts.html' %}
@@ -147,7 +169,7 @@
                 <!--Customer List-->
                 <div class="col-lg-12 m-b30">
                     <div class="table-responsive mb-8">
-                        {% if customers %}
+                        {% if transactions %}
                           <table class="table bg-white">
                               <thead class="bg-info text-white">
                                 <tr>
@@ -158,45 +180,56 @@
 
                                   <th scope="col" style="color: white;" nowrap>Acct No.</th>
 
-                                  <th scope="col" style="color: white;" nowrap>Address</th>
+                                  <th scope="col" style="color: white;" nowrap>Transaction ID</th>
 
                                   <th scope="col" style="color: white;" nowrap>Added By</th>
 
-                                  <th scope="col" style="color: white;" nowrap>Created Date</th>
+                                  <th scope="col" style="color: white;" nowrap>Date</th>
                                   
                                   <th scope="col" style="color: white;">Bal.</th>
                                   
-                                  <th scope="col" style="color: white;">Action</th>
+                                  <th scope="col" style="color: white;">Type</th>
                                  
                                 </tr>
                               </thead>
                               <tbody>
                                 
               
-                                {% for customer in customers %}
+                                {% for transaction in transactions %}
                                 <tr>
                                   <th scope="row">{{ forloop.counter }}</th>
 
-                                  <td wrap>{{ customer.customer.profile.full_name }}</td>
+                                  <td wrap>{{ transaction.customer.customer.profile.full_name }}</td>
                                  
-                                  <td>{{ customer.customer.profile.phone }}</td>
+                                  <td>{{ transaction.customer.customer.profile.phone }}</td>
 
-                                  <td>#{{ customer.account_number}}</td>
+                                  <td>#{{ transaction.customer.account_number}}</td>
 
-                                  <td wrap>{{ customer.customer.profile.address }}</td>
+                                  <td nowrap>{{ transaction.transaction_ref}}</td>
 
-                                  <td>{{ customer.added_by }}</td>
+                                  <td>{{ transaction.added_by }}</td>
 
-                                  <td wrap>{{ customer.created_date|naturaltime }}</td>
+                                  <td wrap>{{ transaction.transaction_date|naturaltime }}</td>
 
-                                  <td>N{{ customer.account_balance|intcomma }}</td>
+                                  <td>N{{ transaction.customer.account_balance|intcomma }}</td>
                                   
                                   <td>
                                       
                                     <div class="button-container">
-                                     <a class="btn btn-info deposit-button" href=" {% url 'customer_deposit' customer.pk %} ">Deposit</a>
-
-                                      <a class="btn btn-info withdrawal-button" href="">Withdrawal</a>
+                                     <!--Check for Transaction Types and Display Accordingly-->
+                                        {% if transaction.transaction_type == 'deposit' %}
+                                      <a class="btn btn-info deposit-button" href="">
+                                        {{ transaction.transaction_type|capfirst}}
+                                      </a>
+                                      {% elif transaction.transaction_type == 'withdrawal' %}
+                                      <a class="btn btn-info withdrawal-button" href="">
+                                        {{ transaction.transaction_type|capfirst}}
+                                      </a>
+                                      {% else %}
+                                      <a class="btn btn-info" href="">
+                                        {{ transaction.transaction_type|capfirst}}
+                                      </a>
+                                      {% endif %}
                                     </div>
                                       
                                   </td>
@@ -208,7 +241,7 @@
                           </table>
                             
                         {% else %}  
-                             <span style="text-align: center; color:red;">No Customer Yet</span>    
+                             <span style="text-align: center; color:red;">No Transaction Yet</span>    
                         {% endif %}
                           </div>
                       </div>
@@ -220,16 +253,16 @@
                 <div class="col-md-12">
                     <div class="pagination-box">
                         <ul class="pagination">
-                            {% if customers.has_previous %}
+                            {% if transactions.has_previous %}
                                 <li><a href="?page=1"><i class="fa fa-angle-double-left"></i></a></li>
-                                <li><a href="?page={{ customers.previous_page_number }}">{{ customers.previous_page_number }}</a></li>
+                                <li><a href="?page={{ transactions.previous_page_number }}">{{ transactions.previous_page_number }}</a></li>
                             {% endif %}
                             
-                            <li class="active"><a href="?page={{ customers.number }}">{{ customers.number }}</a></li>
+                            <li class="active"><a href="?page={{ transactions.number }}">{{ transactions.number }}</a></li>
                             
-                            {% if customers.has_next %}
-                                <li><a href="?page={{ customers.next_page_number }}">{{ customers.next_page_number }}</a></li>
-                                <li><a href="?page={{ customers.paginator.num_pages }}"><i class="fa fa-angle-double-right"></i></a></li>
+                            {% if transactions.has_next %}
+                                <li><a href="?page={{ transactions.next_page_number }}">{{ transactions.next_page_number }}</a></li>
+                                <li><a href="?page={{ transactions.paginator.num_pages }}"><i class="fa fa-angle-double-right"></i></a></li>
                             {% endif %}
                         </ul>
                     </div>

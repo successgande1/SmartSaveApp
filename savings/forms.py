@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from accounts.models import Profile
 import random
 import secrets
+from.filters import TransactionFilter, CustomerFilter
 used_numbers = set()
 
 #Customer Creation form
@@ -16,13 +17,14 @@ class CustomerCreationForm(forms.ModelForm):
     full_name = forms.CharField(label='Full Name', required=True)#Form field form Profile Model
     account_number = forms.CharField(label='Account Number', required=True, disabled=True)
     account_balance = forms.DecimalField(label='Account Balance', required=True, initial=0.0, disabled=True)
+    service_charge = forms.DecimalField(label='Service Charge', required=True, initial=200.00, disabled=True )
     
 
     
 
     class Meta:
         model = Customer
-        fields = ['username', 'password', 'account_balance', 'account_number']
+        fields = ['username', 'password', 'account_balance', 'service_charge', 'account_number']
 
     def __init__(self, added_by=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -37,6 +39,7 @@ class CustomerCreationForm(forms.ModelForm):
         customer = Customer(customer=user, added_by=self.added_by)
         customer.account_number = self.cleaned_data['account_number']
         customer.account_balance = self.cleaned_data['account_balance']
+        customer.service_charge = self.cleaned_data['service_charge']
         customer.save()
 
         # Create or update the associated profile
@@ -65,3 +68,16 @@ class DepositForm(forms.ModelForm):
     class Meta:
         model = Transaction
         fields = ['amount', 'transaction_remark']
+
+class SearchTransactionForm(forms.Form):
+    transaction_ref = forms.CharField(max_length=100, required=False)
+   
+
+    def search(self):
+        queryset = Transaction.objects.all()
+        filter_params = {}
+
+        transaction_ref = self.cleaned_data.get('transaction_ref')
+        if transaction_ref:
+            filter_params['transaction_ref'] = transaction_ref
+        return queryset.filter(**filter_params)

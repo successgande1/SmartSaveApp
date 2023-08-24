@@ -37,3 +37,30 @@ html {
 .withdrawal-button{
     background-color: rgb(189, 87, 18);
 }
+
+.transaction-search-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f2f2f2;
+    padding: 10px;
+}
+
+.transaction-search-container input[type="submit"] {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+
+
+
+
+
+@media screen and (max-width: 600px) {
+    .transaction-search-container {
+        flex-direction: column;
+    }
+}

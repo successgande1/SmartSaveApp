@@ -36,11 +36,11 @@ def create_customer(request):
 
 #Customer List View
 @login_required(login_url='accounts-login')
-def customer_lsit(request):
+def customer_list(request):
     #Get list of customers
     customers = Customer.objects.order_by('-created_date')
-     # Paginate the properties
-    paginator = Paginator(customers, 5)  # Show 6 properties per page
+     # Paginate the customers
+    paginator = Paginator(customers, 5)  # Show 5 Customers per page
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
@@ -76,3 +76,43 @@ def customer_deposit(request, pk):
         'form':form,
     }
     return render(request, 'savings/customer_deposit.html', context)
+
+#Customer Deposit List
+@login_required(login_url='accounts-login')
+def deposit_list(request):
+    #Get Deposits
+    deposits = Transaction.objects.filter(transaction_type='deposit').order_by('-transaction_date')
+    
+    paginator = Paginator(deposits, 5)  # Show 5 Desposits per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    context = {
+        'page_title':'Deposit List',
+        'deposits':page_obj,
+    }
+    return render(request, 'savings/deposit_list.html', context)
+
+#Transactions
+@login_required(login_url='accounts-login')
+def transaction_list(request):
+    form = SearchTransactionForm(request.GET or None)
+    #Get all the available properties and sort with slice
+    transactions = Transaction.objects.all()
+    
+
+    if request.method == "GET" and form.is_valid():
+        transactions = form.search()  
+    else:
+        form = SearchTransactionForm()
+
+    paginator = Paginator(transactions, 5)  # Show 5 Transactions per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        'transactions':page_obj,
+        'form':form,
+        'page_title':'Transactions',
+        
+    }
+    return render(request, 'savings/transaction_list.html', context)

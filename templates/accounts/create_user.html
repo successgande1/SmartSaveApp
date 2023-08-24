@@ -12,6 +12,7 @@
 <!-- Left sidebar menu start -->
 {% include 'partials/_LeftSideBar.html' %}
 <!-- Left sidebar menu end -->
+{% if user.is_authenticated and user.profile.role == 'admin' or user.is_superuser %}
 
 <main class="ttr-wrapper">
     <div class="container-fluid">
@@ -48,4 +49,6 @@
     </div>
 </main>
 
-{% endblock %}
+{% endif %}
+
+{% endblock %} 

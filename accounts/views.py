@@ -4,6 +4,7 @@ from django.contrib.auth import logout
 from django.core.paginator import Paginator
 from django.contrib import messages 
 import json
+from savings.models import Customer, Transaction
 from django.db.models import Count, Sum
 import datetime
 from .models import Profile
@@ -92,11 +93,18 @@ def index(request):
         return redirect('accounts-login')
     
     if logged_user.is_superuser:
+        #Get recently registered customers
+        customers = Customer.objects.order_by('-created_date')[:5]
+
+        #Get Recent Transactions
+        transactions = Transaction.objects.order_by('-transaction_date')[:5]
         #Get Day of today from current date and time
         date_today = datetime.datetime.now().date
         context = {
             'date_today':date_today,
             'page_title':"Dashboard",
+            'customers':customers,
+            'transactions':transactions,
         }
         return render(request, 'accounts/index.html', context)
     
@@ -105,12 +113,23 @@ def index(request):
         if not profile_complete(profile):
                 return redirect('accounts-profile-update')
         else:
+             #Get Day of today from current date and time
              date_today = datetime.datetime.now().date
+             #Get recently registered customers
+             customers = Customer.objects.filter(added_by=request.user).order_by('-created_date')[:5]
+             #Get Recent Transactions
+             transactions = Transaction.objects.filter(added_by=request.user).order_by('-transaction_date')[:5]
+             
+             
         context = {
             'date_today':date_today,
             'page_title':"Dashboard",
+            'customers':customers,
+            'transactions':transactions,
         }
+        
         return render(request, 'accounts/index.html', context)
+    
     elif logged_user.is_authenticated and not hasattr(logged_user, 'profile'):
         date_today = datetime.datetime.now().date
         context = {

@@ -47,15 +47,19 @@
                     </a>
                     <ul>
                         <li>
-                            <a href="" class="ttr-material-button"><span class="ttr-label">Deposit</span></a>
+                            <a href=" {% url 'customer-list' %} " class="ttr-material-button"><span class="ttr-label">Customers</span></a>
                         </li>
 
                         <li>
-                            <a href="" class="ttr-material-button"><span class="ttr-label">Withdrawal</span></a>
+                            <a href=" {% url 'deposit-list' %} " class="ttr-material-button"><span class="ttr-label">Deposits</span></a>
                         </li>
 
                         <li>
-                            <a href="" class="ttr-material-button"><span class="ttr-label">Withdrawal Request</span></a>
+                            <a href="" class="ttr-material-button"><span class="ttr-label">Withdrawals</span></a>
+                        </li>
+
+                        <li>
+                            <a href=" {% url 'transaction-list' %} " class="ttr-material-button"><span class="ttr-label">Transactions</span></a>
                         </li>
                         
                         <li>
@@ -82,9 +86,9 @@
                 </li>
              
                 <li>
-                    <a href="" class="ttr-material-button">
+                    <a href=" {% url 'customer-list' %} " class="ttr-material-button">
                         <span class="ttr-icon"><i class="ti-book"></i></span>
-                        <span class="ttr-label"> Add Deposit</span>
+                        <span class="ttr-label"> Customers</span>
                     </a>
                 </li>
                 <li>
@@ -94,7 +98,7 @@
                 </li>
                
                 <li>
-                    <a href="" class="ttr-material-button">
+                    <a href=" {% url 'transaction-list' %} " class="ttr-material-button">
                         <span class="ttr-icon"><i class="ti-book"></i></span>
                         <span class="ttr-label">Transactions</span></a>
                 </li>

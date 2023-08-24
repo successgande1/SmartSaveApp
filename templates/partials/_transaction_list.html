@@ -1,26 +1,34 @@
-{% load humanizelib %}
+{% load humanize %}
 
 <div class="row">
     <!-- Your Profile Views Chart -->
     <div class="col-lg-6 m-b30">
         <div class="widget-box">
             <div class="wc-title">
+                {% if user.is_authenticated and user.profile.role == 'admin' or user.profile.role == 'manager' %}
                 <h4>Recently Registered Customers</h4>
+                {% elif user.is_authenticated and user.profile.role == 'cashier' %}
+                <h4>My Customers</h4>
+                {% endif %}
             </div>
             <div class="widget-inner">
                 <div class="new-user-list">
                     <ul>
-                        {% for worker in workers %}
+                        {% for customer in customers %}
                         <li>
                             <span class="new-users-pic">
-                                <img src="{{ worker.profile.image.url }}" alt=""/>
+                                <img src="{{ customer.customer.profile.image.url }}" alt=""/>
                             </span>
                             <span class="new-users-text">
-                                <a href="#" class="new-users-name">{{ worker.username }} </a>
-                                <span class="new-users-info">{{ worker.profile.position }} </span>
+                                <a href="#" class="new-users-name">{{ customer.customer.profile.full_name }} </a>
+                                <span class="new-users-info">Acct. No:{{ customer.account_number }} </span>
+                            </span>
+                            <span class="new-users-text">
+                                <a href="#" class="new-users-name">{{ customer.customer.profile.phone }} </a>
+                                <span class="new-users-info">Bal. N{{ customer.account_balance|intcomma }} </span>
                             </span>
                             <span class="new-users-btn">
-                                <a href="#" class="btn button-sm outline">View Profile</a>
+                                <a href=" {% url 'customer_deposit' customer.pk %} " class="btn button-sm outline">View Profile</a>
                             </span>
                         </li>
                         {% endfor %}
@@ -33,40 +41,52 @@
     <div class="col-lg-6 m-b30">
         <div class="widget-box">
             <div class="wc-title">
-                <h4>Recent Customer Transactions </h4>
+                {% if user.is_authenticated and user.profile.role == 'admin' or user.profile.role == 'manager' %}
+                <h4>Recently Transactions</h4>
+                {% elif user.is_authenticated and user.profile.role == 'cashier' %}
+                <h4>My Recent Transactions</h4>
+                {% endif %}
             </div>
             <div class="widget-inner">
                 <div class="orders-list">
                     <ul>
                        
-                        {% for revenue in income %}
+                        {% for transaction in transactions %}
                          
                                 <li>
                                     <span class="orders-title">
-                                        <a href="#" class="orders-title-name">{{revenue.description}} </a>
-                                        <span class="orders-info">Added: {{revenue.addedDate |naturaltime }} | Date: {{revenue.date}}</span>
+                                        <a href="#" class="orders-title-name">{{transaction.transaction_type|capfirst}} </a>
+                                        <span class="orders-info">Time: {{transaction.transaction_date |naturaltime }} </span>
+                                    </span>
+                                    <span class="orders-title">
+                                        <a href="#" class="orders-title-name">-- |N{{transaction.amount|intcomma}} </a>
+                                        <span class="orders-info"> - |By: {{transaction.added_by }} </span>
+                                    </span>
+                                    <span class="orders-title">
+                                        <a href="#" class="orders-title-name"> | {{transaction.customer.customer.profile.full_name}} </a>
+                                        <span class="orders-info"> - |Acct. No: {{transaction.customer.account_number }} </span>
                                     </span>
                                     <span class="orders-btn">
-                                        <a href="#" class="btn button-sm green">Income</a>
+                                        {% if transaction.transaction_type == 'deposit' %}
+                                        <a href="#" class="btn button-sm green">
+                                            Deposit
+                                        </a>
+                                        {% elif transaction.transaction_type == 'withdrawal'  %}
+                                        <a href="#" class="btn button-sm red">
+                                            Withdrawal
+                                        </a>
+                                        {% else %}
+                                        <a href="#" class="btn button-sm blue">
+                                            Withdrawal Request
+                                        </a>
+                                        {% endif %}
                                     </span>
                                 </li>
 
                         {% endfor %}
 
                         
-                        {% for expense in expenses %}
-
-                        <li>
-                            <span class="orders-title">
-                                <a href="#" class="orders-title-name">{{expense.description}}</a>
-                                <span class="orders-info">Added: {{ expense.addedDate|naturaltime}} | Date: {{expense.date}}</span>
-                            </span>
-                            <span class="orders-btn">
-                                <a href="#" class="btn button-sm red">Expenses</a>
-                            </span>
-                        </li>
-
-                        {% endfor %}
+                       
                         
                         
                     </ul>
