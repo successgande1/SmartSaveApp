@@ -29,7 +29,7 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     role = models.CharField(max_length=20, blank=True)  # 'admin', 'cashier', 'customer'
     full_name = models.CharField(max_length=60, blank=True)
-    phone = PhoneNumberField()
+    phone = models.CharField(max_length=14, blank=True)
     address = models.CharField(max_length=160, blank=True)
     image = ProcessedImageField(
                                     upload_to='profile_images',

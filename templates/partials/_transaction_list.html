@@ -5,7 +5,7 @@
     <div class="col-lg-6 m-b30">
         <div class="widget-box">
             <div class="wc-title">
-                {% if user.is_authenticated and user.profile.role == 'admin' or user.profile.role == 'manager' %}
+                {% if user.is_authenticated and user.profile.role == 'admin' or user.is_superuser or user.profile.role == 'manager' %}
                 <h4>Recently Registered Customers</h4>
                 {% elif user.is_authenticated and user.profile.role == 'cashier' %}
                 <h4>My Customers</h4>
@@ -41,7 +41,7 @@
     <div class="col-lg-6 m-b30">
         <div class="widget-box">
             <div class="wc-title">
-                {% if user.is_authenticated and user.profile.role == 'admin' or user.profile.role == 'manager' %}
+                {% if user.is_authenticated and user.profile.role == 'admin' or user.is_superuser or user.profile.role == 'manager' %}
                 <h4>Recently Transactions</h4>
                 {% elif user.is_authenticated and user.profile.role == 'cashier' %}
                 <h4>My Recent Transactions</h4>

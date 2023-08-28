@@ -6,6 +6,7 @@ from accounts.models import Profile
 import random
 import secrets
 from.filters import TransactionFilter, CustomerFilter
+from django.core.exceptions import ValidationError
 used_numbers = set()
 
 #Customer Creation form
@@ -19,9 +20,6 @@ class CustomerCreationForm(forms.ModelForm):
     account_balance = forms.DecimalField(label='Account Balance', required=True, initial=0.0, disabled=True)
     service_charge = forms.DecimalField(label='Service Charge', required=True, initial=200.00, disabled=True )
     
-
-    
-
     class Meta:
         model = Customer
         fields = ['username', 'password', 'account_balance', 'service_charge', 'account_number']
@@ -69,15 +67,52 @@ class DepositForm(forms.ModelForm):
         model = Transaction
         fields = ['amount', 'transaction_remark']
 
-class SearchTransactionForm(forms.Form):
-    transaction_ref = forms.CharField(max_length=100, required=False)
-   
+# class SearchTransactionForm(forms.Form):
+#     transaction_ref = forms.CharField(max_length=100, required=False)
 
-    def search(self):
-        queryset = Transaction.objects.all()
-        filter_params = {}
+#     def clean_transaction_ref(self):
+#         transaction_ref = self.cleaned_data.get('transaction_ref')
+        
+#         if not transaction_ref:
+#             raise ValidationError("Please provide a transaction reference.")
+        
+#         queryset = Transaction.objects.filter(transaction_ref=transaction_ref)
+#         if not queryset.exists():
+#             raise ValidationError("Transaction not found.")
+        
+#         return transaction_ref
 
-        transaction_ref = self.cleaned_data.get('transaction_ref')
-        if transaction_ref:
-            filter_params['transaction_ref'] = transaction_ref
-        return queryset.filter(**filter_params)
+#     def search(self):
+#         transaction_ref = self.cleaned_data.get('transaction_ref')
+#         queryset = Transaction.objects.filter(transaction_ref=transaction_ref)
+#         return queryset
+    
+class WithdrawalRequestForm(forms.ModelForm):
+    class Meta:
+        model = WithdrawalRequest
+        fields = ['amount']
+
+    def __init__(self, customer, *args, **kwargs):
+        self.customer = customer
+        super().__init__(*args, **kwargs)
+
+    def clean_amount(self):
+        amount = self.cleaned_data.get('amount')
+        if amount is None:
+            raise forms.ValidationError("Amount is required.")
+        if amount <= 0:
+            raise forms.ValidationError("Amount must be greater than 0.")
+        available_balance = self.customer.account_balance - self.customer.service_charge
+        if available_balance <= 0:
+            raise forms.ValidationError("No available balance for withdrawal.")
+        if amount > available_balance:
+            raise forms.ValidationError("Withdrawal amount exceeds available balance after SERVICE CHARGE deduction.")
+        # Check for pending withdrawal requests
+        pending_requests = WithdrawalRequest.objects.filter(customer=self.customer, is_approved=False).exists()
+        if pending_requests:
+            raise forms.ValidationError("Customer has a pending withdrawal request.")
+        
+        return amount
+
+class SearchForm(forms.Form):
+    search_query = forms.CharField(max_length=100, required=False, label='Search by Name, Phone or acct. No.')

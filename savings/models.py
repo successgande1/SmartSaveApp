@@ -6,6 +6,8 @@ from random import randint
 import uuid
 from uuid import UUID
 from json import JSONEncoder
+from datetime import timedelta
+from django.utils import timezone
 
 
 # Create your models here.
@@ -17,6 +19,12 @@ class Customer(models.Model):
     service_charge = models.DecimalField(max_digits=10, decimal_places=2, default=200.00)
     created_date = models.DateTimeField(auto_now_add=True, null=True) 
     last_updated = models.DateTimeField(auto_now_add=False, null=True) 
+
+    def update_account_balance(self, amount):
+        self.account_balance -= amount
+        self.last_updated = timezone.now()
+        self.save()
+
 
     def __str__(self):
         return f' {self.customer} - Account No: {self.account_number}'
@@ -30,24 +38,24 @@ class Transaction(models.Model):
     transaction_remark = models.CharField(max_length=100, blank=True)
     transaction_date = models.DateTimeField(auto_now_add=True, null=True) 
 
-    #Save Reference Number
-    def save(self, *args, **kwargs):
-         self.transaction_ref == str(uuid.uuid4())
-         super().save(*args, **kwargs) 
-
-    def __unicode__(self):
-        return self.customer
-
-    def __str__(self):
-        return f' {self.customer} - Transaction Type: {self.transaction_type}'
-    
     def save(self, *args, **kwargs):
         if not self.transaction_ref:
             self.transaction_ref = str(uuid.uuid4())
         super().save(*args, **kwargs)
-        self.customer.account_balance += self.amount
-        self.customer.last_updated = self.transaction_date
-        self.customer.save()
+
+        # Update customer's account balance and last_updated attributes
+        if self.transaction_type == 'deposit':
+            self.customer.account_balance += self.amount
+            self.customer.last_updated = self.transaction_date
+            self.customer.save()
+        elif self.transaction_type == 'withdraw':
+            self.customer.account_balance -= self.amount
+            self.customer.last_updated = self.transaction_date
+            self.customer.save()
+
+    def __str__(self):
+        return f' {self.customer} - Transaction Type: {self.transaction_type}'
+    
     
 class WithdrawalRequest(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
@@ -55,6 +63,8 @@ class WithdrawalRequest(models.Model):
     added_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='added_withdrawal_requests', related_query_name='added_withdrawal_request')
     request_ref = models.UUIDField(primary_key = True, editable = False, default=uuid.uuid4)
     is_approved = models.BooleanField(default=False)
+    request_date = models.DateTimeField(auto_now_add=True, null=True) 
+    
 
     #Save Reference Number
     def save(self, *args, **kwargs):

@@ -1,5 +1,5 @@
 import django_filters
-from .models import Customer, Transaction
+from .models import Customer, Transaction, WithdrawalRequest
 
 class TransactionFilter(django_filters.FilterSet):
     class Meta:
@@ -16,3 +16,6 @@ class CustomerFilter(django_filters.FilterSet):
             'customer': ['exact'],
             'account_number': ['exact'],
         }
+
+
+

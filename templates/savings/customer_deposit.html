@@ -178,9 +178,11 @@
                                 {% csrf_token %}
     
                                 {{ form | crispy }}
-                        
+                        {% if page_title == 'Withdrawal Request' %}
+                        <input class="btn btn-success" type="submit" value="Request Withdrawal">
+                        {% else %}
                         <input class="btn btn-success" type="submit" value="Add Deposit">
-    
+                        {% endif %}
                             </form>
                         </div>
                     </div>
