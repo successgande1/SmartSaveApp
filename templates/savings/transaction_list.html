@@ -109,7 +109,7 @@
                                     {% if page_title == 'Transactions' %}
                                     Added By
                                     {% elif page_title == 'Request List' %}
-                                    Requested By
+                                    Done By
                                     {% endif %}
                                   </th>
 
@@ -117,7 +117,7 @@
                                     {% if page_title == 'Transactions' %}
                                     Added Date
                                     {% elif page_title == 'Request List' %}
-                                    Requested Date
+                                     Date
                                     {% endif %}
                                   </th>
 
@@ -131,7 +131,7 @@
                                     {% if page_title == 'Transactions' %}
                                     Type
                                     {% elif page_title == 'Request List' %}
-                                    Requested Amount
+                                    Requested 
                                     {% endif %}
 
                                   </th>
@@ -175,7 +175,7 @@
                                       <a class="btn btn-info deposit-button" href="">
                                         {{ transaction.transaction_type|capfirst}}
                                       </a>
-                                      {% elif transaction.transaction_type == 'withdrawal' %}
+                                      {% elif transaction.transaction_type == 'withdraw' %}
                                       <a class="btn btn-red withdrawal-button" href="">
                                         {{ transaction.transaction_type|capfirst}}
                                       </a>
@@ -212,10 +212,17 @@
                                   <td style="color:red;">N{{ customer.amount|intcomma }}</td>
                                   
                                   <td>
-                                    <a class="btn btn-red withdrawal-button" href="{% url 'withdrawal_approval' request_ref=customer.request_ref %}">
-                                      Approve
-                                    </a>
                                     
+
+                                    {% if customer.request_date >= time_threshold %}
+                                        <a class="btn btn-info withdrawal-button" href="{% url 'withdrawal_approval' request_ref=customer.request_ref %}">
+                                            Approve
+                                        </a>
+                                    {% else %}
+                                        <a class="btn btn-red withdrawal-button" href="">
+                                            Pending
+                                        </a>
+                                    {% endif %}
                                   </td>
                                   
                                 </tr>

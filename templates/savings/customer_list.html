@@ -124,12 +124,23 @@
                                       
                                     <div class="button-container">
                                      <a class="btn btn-info deposit-button" href=" {% url 'customer_deposit' customer.pk %} ">Deposit</a>
-                                      
+<!--######################### Start Check if Customer has PENDING Withdrawal and less Deposit to Place a Request #################################################-->
                                      {% if not customer.has_pending_withdrawal %}
-                                     <a class="btn btn-info withdrawal-button" href=" {% url 'withdrawal_request' customer.pk %} ">
-                                      Request
-                                    </a>
-                                    {% endif %}
+                                        {% if customer.account_balance < customer.service_charge %}
+                                            <a class="btn btn-info withdrawal-button" href="">
+                                                Can't Request
+                                            </a>
+                                        {% else %}
+                                            <a class="btn btn-info withdrawal-button" href="{% url 'withdrawal_request' customer.pk %}">
+                                                Request
+                                            </a>
+                                        {% endif %}
+                                      {% else %}
+                                          <a class="btn btn-info withdrawal-button" href="">
+                                              Pending Request
+                                          </a>
+                                      {% endif %}
+<!--######################### End Check if Customer has PENDING Withdrawal and less Deposit to Place a Request End #################################################-->
                                       
                                       
                                     </div>

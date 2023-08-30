@@ -40,6 +40,13 @@
                     </a>
                 </li>
                 <li>
+                    <a href="{% url 'process_service_charge' %}" class="ttr-material-button">
+                        <span class="ttr-icon"><i class="ti-book"></i></span>
+                        <span class="ttr-label"> Service Charge</span>
+                    </a>
+                </li>
+                
+                <li>
                     <a href="#" class="ttr-material-button">
                         <span class="ttr-icon"><i class="ti-email"></i></span>
                         <span class="ttr-label">Reports</span>
@@ -63,7 +70,7 @@
                         </li>
                         
                         <li>
-                            <a href="" class="ttr-material-button"><span class="ttr-label">Staff Report</span></a>
+                            <a href=" {% url 'process_service_charge' %} " class="ttr-material-button"><span class="ttr-label">Charge Fee</span></a>
                         </li>
 
                         <li>
@@ -101,6 +108,11 @@
                     <a href=" {% url 'transaction-list' %} " class="ttr-material-button">
                         <span class="ttr-icon"><i class="ti-book"></i></span>
                         <span class="ttr-label">Transactions</span></a>
+                </li>
+                <li>
+                    <a href=" {% url 'accounts-logout' %} " class="ttr-material-button">
+                        <span class="ttr-icon"><i class="ti-book"></i></span>
+                        <span class="ttr-label">User Logout</span></a>
                 </li>
 
                 {% elif user.is_authenticated and user.customer.customer %}

@@ -25,6 +25,8 @@ class Customer(models.Model):
         self.last_updated = timezone.now()
         self.save()
 
+    def set_pending_withdrawal_status(self):
+        return self.withdrawalrequest_set.filter(is_approved=False).exists()
 
     def __str__(self):
         return f' {self.customer} - Account No: {self.account_number}'
@@ -63,12 +65,13 @@ class WithdrawalRequest(models.Model):
     added_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='added_withdrawal_requests', related_query_name='added_withdrawal_request')
     request_ref = models.UUIDField(primary_key = True, editable = False, default=uuid.uuid4)
     is_approved = models.BooleanField(default=False)
-    request_date = models.DateTimeField(auto_now_add=True, null=True) 
-    
+    request_date = models.DateTimeField(auto_now_add=True)
+    request_date_local = models.DateTimeField(auto_now_add=True)
 
     #Save Reference Number
     def save(self, *args, **kwargs):
          self.request_ref == str(uuid.uuid4())
+         self.request_date_local = timezone.localtime(self.request_date)
          super().save(*args, **kwargs) 
 
     def __unicode__(self):
@@ -77,6 +80,7 @@ class WithdrawalRequest(models.Model):
 
     def __str__(self):
         return f' {self.customer} - Request Status: {self.is_approved}'
+
     
 class ServiceCharge(models.Model):
     charged_customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
