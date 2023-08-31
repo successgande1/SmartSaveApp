@@ -27,13 +27,7 @@
             </ul>
         </div>	
 
-        <!--Check if User is login and is also a staff and a superuser-->
-        {% if user.is_authenticated and user.profile.role == 'admin' or user.is_superuser %}
         
-        <!-- Card -->
-        {% include 'partials/_admin_cards.html' %} 
-        <!-- Card END -->
-        {% endif %}
         <!--Search Transaction Container Start-->
         <div class="container">
           <div class="row my-4">
@@ -88,10 +82,6 @@
                                   <th scope="col" style="color: white;" nowrap>Acct No.</th>
 
                                   <th scope="col" style="color: white;" nowrap>Address</th>
-
-                                  <th scope="col" style="color: white;" nowrap>Added By</th>
-
-                                  <th scope="col" style="color: white;" nowrap>Created Date</th>
                                   
                                   <th scope="col" style="color: white;">Bal.</th>
                                   
@@ -114,10 +104,7 @@
 
                                   <td wrap>{{ customer.customer.profile.address }}</td>
 
-                                  <td>{{ customer.added_by }}</td>
-
-                                  <td wrap>{{ customer.created_date|naturaltime }}</td>
-
+                                  
                                   <td>N{{ customer.account_balance|intcomma }}</td>
                                   
                                   <td>
@@ -148,8 +135,17 @@
                                   </td>
                                 </tr>
                                 {% endfor %}    
-                                <tr><td nowrap></td></tr>    
                                 
+                                <tr>
+                                  <td colspan="5"></td>
+                                  <td style="color:white; font-size:1.2rem;">
+                                    <div class="button-container">
+                                      <a class="btn btn-info deposit-button">N{{ logged_user_customer_deposit_total|intcomma }}</a> 
+                                    </div>
+                                    
+                                  </td>
+                                </tr>    
+                                 
                               </tbody>
                           </table>
                             

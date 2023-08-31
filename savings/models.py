@@ -8,6 +8,7 @@ from uuid import UUID
 from json import JSONEncoder
 from datetime import timedelta
 from django.utils import timezone
+from django.db.models import Sum
 
 
 # Create your models here.
@@ -27,6 +28,23 @@ class Customer(models.Model):
 
     def set_pending_withdrawal_status(self):
         return self.withdrawalrequest_set.filter(is_approved=False).exists()
+    
+    #Method for Total account balances of customers belonging to logged in user for the Month
+    @classmethod
+    def get_user_total_customer_balance(cls, year, month, user):
+        return cls.objects.filter(
+            added_by=user,
+            created_date__year=year,
+            created_date__month=month
+        ).aggregate(total_balance=Sum('account_balance'))['total_balance'] or 0.00
+    
+    #Method for Total account balances of all customers in the Month
+    @classmethod
+    def get_total_customers_balance(cls, year, month):
+        return cls.objects.filter(
+            last_updated__year=year,
+            last_updated__month=month
+        ).aggregate(total_balance=Sum('account_balance'))['total_balance'] or 0.00
 
     def __str__(self):
         return f' {self.customer} - Account No: {self.account_number}'
@@ -39,6 +57,65 @@ class Transaction(models.Model):
     transaction_ref = models.UUIDField(primary_key = True, editable = False, default=uuid.uuid4)
     transaction_remark = models.CharField(max_length=100, blank=True)
     transaction_date = models.DateTimeField(auto_now_add=True, null=True) 
+
+
+    @classmethod
+    def get_total_deposits(cls, year, month): #Method for calculating Total Current Month Deposit
+        return cls.objects.filter(
+            transaction_type='deposit',
+            transaction_date__year=year,
+            transaction_date__month=month
+        ).aggregate(total_deposits=Sum('amount'))['total_deposits'] or 0.00
+    
+
+    
+    @classmethod
+    def get_total_deposit_today(cls, year, month, day):# Method for calculating Total Deposit for the day
+        return cls.objects.filter(
+            transaction_type='deposit',
+            transaction_date__year=year,
+            transaction_date__month=month,
+            transaction_date__day=day
+        ).aggregate(total_deposits=Sum('amount'))['total_deposits'] or 0.00
+
+    @classmethod
+    def get_total_withdrawals(cls, year, month): #Method for calculating Total Current Month Withdraw
+        return cls.objects.filter(
+            transaction_type='withdraw',
+            transaction_date__year=year,
+            transaction_date__month=month
+        ).aggregate(total_withdrawals=Sum('amount'))['total_withdrawals'] or 0.00
+    
+    # Method for calculating Total Deposite by user for the day
+    @classmethod
+    def get_user_total_desposited_today(cls, year, month, day, user):  
+        return cls.objects.filter(
+            transaction_type='deposit',
+            transaction_date__year=year,
+            transaction_date__month=month,
+            transaction_date__day=day,
+            added_by = user
+        ).aggregate(total_withdrawals=Sum('amount'))['total_withdrawals'] or 0.00
+    
+     # Method for calculating Total withdrawal Added by user for the day
+    @classmethod
+    def get_user_total_withdrawal_today(cls, year, month, day, user):  
+        return cls.objects.filter(
+            transaction_type='withdraw',
+            transaction_date__year=year,
+            transaction_date__month=month,
+            transaction_date__day=day,
+            added_by = user
+        ).aggregate(total_withdrawals=Sum('amount'))['total_withdrawals'] or 0.00
+    
+    @classmethod
+    def get_total_withdrawal_today(cls, year, month, day):  # Method for calculating Total Withdrawal for the day
+        return cls.objects.filter(
+            transaction_type='withdraw',
+            transaction_date__year=year,
+            transaction_date__month=month,
+            transaction_date__day=day
+        ).aggregate(total_withdrawals=Sum('amount'))['total_withdrawals'] or 0.00
 
     def save(self, *args, **kwargs):
         if not self.transaction_ref:
@@ -67,6 +144,27 @@ class WithdrawalRequest(models.Model):
     is_approved = models.BooleanField(default=False)
     request_date = models.DateTimeField(auto_now_add=True)
     request_date_local = models.DateTimeField(auto_now_add=True)
+
+    @classmethod #Method for getting all customer total withdrawal Request for the day
+    def get_total_withdrawal_request(cls, year, month, day):
+        total_request = cls.objects.filter(
+            request_date__year=year,
+            request_date__month=month,
+            request_date__day=day
+        ).aggregate(total_request=Sum('amount'))['total_request']
+        return total_request or 0.00
+    
+    @classmethod #Method for getting total withdrawal request by logged in user
+    def get_total_withdrawal_request_by_user(cls, year, month, day, user):
+        total_request = cls.objects.filter(
+            request_date__year=year,
+            request_date__month=month,
+            request_date__day=day,
+            added_by=user
+        ).aggregate(total_request=Sum('amount'))['total_request']
+        return total_request or 0.00
+
+
 
     #Save Reference Number
     def save(self, *args, **kwargs):

@@ -3,23 +3,28 @@
     <div class="col-md-6 col-lg-3 col-xl-3 col-sm-6 col-12">
         <div class="widget-card widget-bg4">					 
             <div class="wc-item">
-                <h4 class="wc-title">
-                    Deposits:
+                <h4 class="wc-title" style="font-size:1rem;">
+                    Deposited:
                 </h4>
-                <span style="color:black;font-size:small">
-                    Today: {{date_today}} 
+                <span style="color:rgb(9, 9, 9);font-size:0.8rem">
+                     {{current_date}}
                 <span class="wc-stats counter">
-                    <h5 style="color: white;">N{{ daily_income | intcomma }}</h5>
+                   
+                    <h5 style="color: white; font-size:0.8rem;">
+                        <a href=" {% url 'deposit-list' %} ">N{{ total_deposit_today | intcomma }}</a>
+                        
+                    </h5>
+                    
                 </span>		
                 <div class="progress wc-progress">
-                    <div class="progress-bar" role="progressbar" style="width: 90%;" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+                    <div class="progress-bar" role="progressbar" style="width: 100%;" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
                 </div>
                 <span class="wc-progress-bx">
-                    <span class="wc-change">
-                        Change
+                    <span class="wc-change" style="color:white; font-size:1rem;">
+                        Number Deposited:
                     </span>
-                    <span class="wc-number ml-auto">
-                        90%
+                    <span class="wc-number ml-auto" style="color:white; font-size:1rem;">
+                       {{count_deposit_today}}
                     </span>
                 </span>
             </div>				      
@@ -28,24 +33,26 @@
     <div class="col-md-6 col-lg-3 col-xl-3 col-sm-6 col-12">
         <div class="widget-card widget-bg3">					 
             <div class="wc-item">
-                <h4 class="wc-title">
-                    Withdrawals:
+                <h4 class="wc-title" style="font-size:0.8rem;">
+                    Withdrawn:
                 </h4>
-                <span style="color:black;font-size:small">
-                    This Month: {% now "M" %}, {% now "Y" %}
+                <span style="color:black;font-size:0.8rem">
+                     {{current_date}}
                 </span>
                 <span class="wc-stats counter">
-                    <h5 style="color: rgb(0, 0, 7);">N{{ total_monthly_expenses | intcomma }}</h5>
+                    <h5 style="color: rgb(243, 243, 247); font-size:0.8rem;">
+                        <a href=" {% url 'withdrawal-list' %} ">N{{ total_withdrawal_today | intcomma }}</a>
+                    </h5>
                 </span>		
                 <div class="progress wc-progress">
-                    <div class="progress-bar" role="progressbar" style="width: 65%;" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+                    <div class="progress-bar" role="progressbar" style="width: 100%;" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
                 </div>
                 <span class="wc-progress-bx">
-                    <span class="wc-change">
-                        Change
+                    <span class="wc-change" style="font-size: 1rem;">
+                        No Withdrawn:
                     </span>
-                    <span class="wc-number ml-auto">
-                        65%
+                    <span class="wc-number ml-auto" style="font-size: 1rem;">
+                        {{count_withdrawals_today}}
                     </span>
                 </span>
             </div>				      
@@ -54,25 +61,25 @@
     <div class="col-md-6 col-lg-3 col-xl-3 col-sm-6 col-12">
         <div class="widget-card widget-bg1">					 
             <div class="wc-item">
-                <h4 class="wc-title">
-                  Deposit Balance:
+                <h4 class="wc-title" style="font-size:0.8rem;">
+                  No. of Request.: {{count_withdrawal_request_today}}
                 </h4>
-                <span style="color:rgb(179, 180, 175);font-size:small">
-                    This Month: {% now "M" %}, {% now "Y" %}
+                <span style="color:rgb(179, 180, 175);font-size:0.8rem">
+                    For: {{tomorrow}}
                 </span>
                 <span class="wc-stats counter">
-                   <h5 style="color: white;"> N{{ total_income | intcomma }}</h5>
+                   <h5 style="color: white; font-size:0.9rem;"> </h5>
                 </span>	
                 	
                 <div class="progress wc-progress">
-                    <div class="progress-bar" role="progressbar" style="width: 78%;" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+                    <div class="progress-bar" role="progressbar" style="width: 100%;" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
                 </div>
                 <span class="wc-progress-bx">
-                    <span class="wc-change">
-                        Change
+                    <span class="wc-change" style="font-size: 1rem;">
+                        Number of Request: 
                     </span>
-                    <span class="wc-number ml-auto">
-                        78%
+                    <span class="wc-number ml-auto" style="font-size: 1rem;">
+                        {{count_withdrawal_request_today}}
                     </span>
                 </span>
             </div>				      
@@ -82,24 +89,24 @@
     <div class="col-md-6 col-lg-3 col-xl-3 col-sm-6 col-12">
         <div class="widget-card widget-bg2">					 
             <div class="wc-item">
-                <h4 class="wc-title">
-                     Withdrawal Request:
+                <h4 class="wc-title" style="font-size: 0.8rem;">
+                     Requested:
                 </h4>
-                <span style="color:black;font-size:small">
-                    This Month: {% now "M" %}, {% now "Y" %}
+                <span style="color:black;font-size:0.8rem">
+                    For: {{tomorrow}}
                 </span>
                 <span class="wc-stats counter">
-                   <h5 style="color: rgb(95, 3, 3);"> N{{ net_monthly_income | intcomma }} </h5> 
+                   <h5 style="color: rgb(95, 3, 3); font-size:0.8rem;"> N{{ total_withdrawal_request_today | intcomma }} </h5> 
                 </span>		
                 <div class="progress wc-progress">
-                    <div class="progress-bar" role="progressbar" style="width: 88%;" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+                    <div class="progress-bar" role="progressbar" style="width: 100%;" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
                 </div>
                 <span class="wc-progress-bx">
-                    <span class="wc-change">
-                        Change
+                    <span class="wc-change" style="font-size: 1rem;">
+                        Number of Request:
                     </span>
-                    <span class="wc-number ml-auto">
-                        88%
+                    <span class="wc-number ml-auto" style="font-size: 1rem;">
+                        {{count_withdrawal_request_today}}
                     </span>
                 </span>
             </div>				      

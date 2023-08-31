@@ -34,16 +34,34 @@
                     </a>
                 </li>
                 <li>
-                    <a href="" class="ttr-material-button">
+                    <a href="{% url 'customer-list' %}" class="ttr-material-button">
                         <span class="ttr-icon"><i class="ti-book"></i></span>
-                        <span class="ttr-label"> Withdrawal Request</span>
+                        <span class="ttr-label"> Customers</span>
+                    </a>
+                </li>
+                <li>
+                    <a href=" {% url 'request-list' %} " class="ttr-material-button">
+                        <span class="ttr-icon"><i class="ti-book"></i></span>
+                        <span class="ttr-label"> Request List</span>
                     </a>
                 </li>
                 <li>
                     <a href="{% url 'process_service_charge' %}" class="ttr-material-button">
                         <span class="ttr-icon"><i class="ti-book"></i></span>
-                        <span class="ttr-label"> Service Charge</span>
+                        <span class="ttr-label"> Process Charges</span>
                     </a>
+                </li>
+
+                <li>
+                    <a href="{% url 'charged_customers_list' %}" class="ttr-material-button">
+                        <span class="ttr-icon"><i class="ti-book"></i></span>
+                        <span class="ttr-label"> List Charged Customers</span>
+                    </a>
+                </li>
+                <li>
+                    <a href=" {% url 'accounts-logout' %} " class="ttr-material-button">
+                        <span class="ttr-icon"><i class="ti-book"></i></span>
+                        <span class="ttr-label">User Logout</span></a>
                 </li>
                 
                 <li>
@@ -80,6 +98,7 @@
                             <a href="" class="ttr-material-button"><span class="ttr-label">Monthly Expenditure </span></a>
                         </li>
                         
+                        
                     </ul>
                 </li>
 
@@ -101,7 +120,7 @@
                 <li>
                     <a href=" {% url 'request-list' %} " class="ttr-material-button">
                         <span class="ttr-icon"><i class="ti-book"></i></span>
-                        <span class="ttr-label">Add Withdrawal</span></a>
+                        <span class="ttr-label">My Request</span></a>
                 </li>
                
                 <li>

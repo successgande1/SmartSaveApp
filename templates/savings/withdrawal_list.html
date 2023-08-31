@@ -1,0 +1,168 @@
+{% extends 'dashboard_base.html' %}
+
+{% block title %} {{page_title}} {% endblock %}
+
+{% load static %}
+
+{% load crispy_forms_tags %}
+
+{% load humanize %}
+
+{% block content %}
+
+
+
+
+<!-- Left sidebar menu start -->
+{% include 'partials/_LeftSideBar.html' %}
+<!-- Left sidebar menu end -->
+
+<main class="ttr-wrapper">
+    <div class="container-fluid">
+        <div class="db-breadcrumb">
+            <h4 class="breadcrumb-title" style="color: rgb(4, 149, 16);">Hello! {{user.profile.role|capfirst}} {{ user.username }} </h4>
+            <ul class="db-breadcrumb-list">
+                <li><a href="#"><i class="fa fa-home"></i>Home</a></li>
+                <li style="color: blue;">{{page_title}}</li>
+            </ul>
+        </div>	
+
+        <!--Check if User is login and is also a staff and a superuser-->
+        {% if user.is_authenticated and user.profile.role == 'admin' or user.is_superuser %}
+        
+        <!-- Card -->
+        {% include 'partials/_admin_cards.html' %} 
+        <!-- Card END -->
+        {% else %}
+
+        <!-- Card -->
+        {% include 'partials/_staff_cards.html' %} 
+        <!-- Card END -->
+
+        {%  endif %}
+
+        {% if user.is_authenticated and user.profile.role == 'admin' or user.is_superuser or user.profile.role == 'manager' or user.profile.role == 'cashier' %}
+
+        <div class="container">
+            <div class="row">
+                {% include 'partials/_alerts.html' %}
+               
+
+                <!--Customer List-->
+                <div class="col-lg-12 m-b30">
+                    <div class="table-responsive mb-8">
+                        
+                          <table class="table bg-white">
+                              <thead class="bg-info text-white"> 
+                                <tr>
+                                  <th scope="col">#</th>
+
+                                  <th scope="col" style="color: white;" nowrap>Acct. Name</th>
+                                
+                                  <th scope="col" style="color: white;" nowrap>Phone</th>
+
+                                  <th scope="col" style="color: white;" nowrap>Acct No.</th>
+
+
+                                  <th scope="col" style="color: white;" nowrap>Date</th>
+
+                                  <th scope="col" style="color: white;" nowrap> withdrawn</th>
+
+
+                                  <th scope="col" style="color: white;" nowrap>Acct. Bal.</th>
+                                  
+                                  
+                                 
+                                </tr>
+                              </thead>
+                              <tbody>
+                                
+                                {% if withdrawals %}
+
+                                {% for withdrawal in withdrawals %}
+                                <tr>
+                                  <th scope="row">{{ forloop.counter }}</th>
+
+                                  <td nowrap>{{ withdrawal.customer.customer.profile.full_name }}</td>
+                                 
+                                  <td>{{ withdrawal.customer.customer.profile.phone }}</td>
+
+                                  <td>#{{ withdrawal.customer.account_number}}</td>
+
+                                  <td>{{ withdrawal.request_date|naturaltime }}</td>
+
+                                  <td> 
+
+                                    <div class="button-container">
+                                      <a class="btn btn-info deposit-button" href="">
+                                        N{{ withdrawal.amount|intcomma }}
+                                     </a>
+ 
+                                       
+                                     </div>
+                                  </td>
+
+
+                                  <td nowrap> N{{ withdrawal.customer.account_balance | intcomma }} </td>
+
+                                </tr>
+                                {% endfor %}    
+                                
+                                <tr>
+                                  <td colspan="4"></td>
+                                  <td style="color:red">
+                                     N{{ my_total_withdrawal_today|intcomma }}
+                                  </td>
+                                </tr>    
+                                
+                                {% else %}  
+                                <tr>
+                                    <td colspan="2"></td>
+                                    <td nowrap>
+                                        <span style="text-align: center; color:red;">You have NOT Made Any Withdrawal Today</span>
+                                    </td>
+                                </tr>
+                                {% endif %}
+                              </tbody>
+                          </table>
+                            
+                        
+                          </div>
+                      </div>
+                </div>
+
+            </div>
+            <!--Pagination-->
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="pagination-box">
+                        <ul class="pagination">
+                            {% if withdrawals.has_previous %}
+                                <li><a href="?page=1"><i class="fa fa-angle-double-left"></i></a></li>
+                                <li><a href="?page={{ withdrawals.previous_page_number }}">{{ withdrawals.previous_page_number }}</a></li>
+                            {% endif %}
+                            
+                            <li class="active"><a href="?page={{ withdrawals.number }}">{{ withdrawals.number }}</a></li>
+                            
+                            {% if withdrawals.has_next %}
+                                <li><a href="?page={{ withdrawals.next_page_number }}">{{ withdrawals.next_page_number }}</a></li>
+                                <li><a href="?page={{ withdrawals.paginator.num_pages }}"><i class="fa fa-angle-double-right"></i></a></li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        
+
+        
+      
+        
+        {% endif %}
+
+        
+    </div>
+</main>
+
+{% endblock %}

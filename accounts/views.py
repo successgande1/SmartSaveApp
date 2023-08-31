@@ -4,12 +4,13 @@ from django.contrib.auth import logout
 from django.core.paginator import Paginator
 from django.contrib import messages 
 import json
-from savings.models import Customer, Transaction
+from savings.models import Customer, Transaction, WithdrawalRequest
 from django.db.models import Count, Sum
 import datetime
 from .models import Profile
 from django.contrib.auth.views import LoginView
 from.forms import *
+from django.utils import timezone
 from django.contrib.auth import login, authenticate
 from .helpers import (
     get_profile,
@@ -93,6 +94,52 @@ def index(request):
         return redirect('accounts-login')
     
     if logged_user.is_superuser:
+        # Get the current month and year
+        current_date = timezone.now()
+        current_day = current_date.day
+        current_month = current_date.month
+        current_year = current_date.year
+        today = datetime.date.today()
+        tomorrow = today + datetime.timedelta(days=1)
+        
+        # Call the methods in your model to get the total deposits and withdrawals ## 
+        total_deposit_today = Transaction.get_total_deposit_today(current_year, current_month, current_day)
+        
+        total_withdrawal_today = Transaction.get_total_withdrawal_today(current_year, current_month, current_day)
+        
+        #Call Method to get SUM of withdrawal request Due Tomorrow
+        total_withdrawal_request_today = WithdrawalRequest.get_total_withdrawal_request(current_year, current_month, current_day)
+        total_deposits = Transaction.get_total_deposits(current_year, current_month)
+        total_withdrawals = Transaction.get_total_withdrawals(current_year, current_month)
+
+        #Filter all Withdrawal request done for THE DAY
+        count_withdrawal_request_today = WithdrawalRequest.objects.filter(
+        is_approved=False,
+        request_date__year=current_year,
+        request_date__month=current_month,
+        request_date__day=current_day
+        ).count()
+
+        
+        # Count Number of customers who has withdrawn today
+        count_withdrawals_today = Transaction.objects.filter(
+            transaction_type='withdraw',
+            transaction_date__year=current_year,
+            transaction_date__month=current_month,
+            transaction_date__day=current_day
+        ).count()
+
+        # Count Number of Customer Deposited today
+        count_deposit_today = Transaction.objects.filter(
+            transaction_type='deposit',
+            transaction_date__year=current_year,
+            transaction_date__month=current_month,
+            transaction_date__day=current_day
+        ).count()
+
+        # Calculate the deposited balance
+        deposited_balance = total_deposits - total_withdrawals
+
         #Get recently registered customers
         customers = Customer.objects.order_by('-created_date')[:5]
 
@@ -101,10 +148,20 @@ def index(request):
         #Get Day of today from current date and time
         date_today = datetime.datetime.now().date
         context = {
-            'date_today':date_today,
+            'total_deposits':total_deposits,
+            'total_withdrawals':total_withdrawals,
+            'deposited_balance':deposited_balance,
+            'total_withdrawal_today':total_withdrawal_today, 
+            'current_date':current_date,
+            'tomorrow':tomorrow,
             'page_title':"Dashboard",
             'customers':customers,
             'transactions':transactions,
+            'total_deposit_today':total_deposit_today,
+            'total_withdrawal_request_today':total_withdrawal_request_today,
+            'count_deposit_today':count_deposit_today,
+            'count_withdrawals_today':count_withdrawals_today,
+            'count_withdrawal_request_today':count_withdrawal_request_today,
         }
         return render(request, 'accounts/index.html', context)
     
@@ -113,12 +170,65 @@ def index(request):
         if not profile_complete(profile):
                 return redirect('accounts-profile-update')
         else:
-             #Get Day of today from current date and time
-             date_today = datetime.datetime.now().date
-             #Get recently registered customers
-             customers = Customer.objects.filter(added_by=request.user).order_by('-created_date')[:5]
+             # Get the current month and year
+            # Get the current month and year
+            current_date = timezone.now()
+            current_day = current_date.day
+            current_month = current_date.month
+            current_year = current_date.year
+            today = datetime.date.today()
+            tomorrow = today + datetime.timedelta(days=1) 
+        
+            # Call the methods in model to get the total deposits added by logged in user ## 
+            user_total_deposit_today = Transaction.get_user_total_desposited_today(current_year, current_month, current_day, request.user)
+
+            # Call the methods in model to get the total deposits added by logged in user ## 
+            user_total_withdrawal_today = Transaction.get_user_total_withdrawal_today(current_year, current_month, current_day, request.user)
+
+            # Call the methods in model to get the total deposits added by logged in user ## 
+            user_total_withdrawal_request_today = WithdrawalRequest.get_total_withdrawal_request_by_user(current_year, current_month, current_day, request.user)
+            
+            #Filter all Withdrawal request done for THE DAY
+            count_user_withdrawal_request_today = WithdrawalRequest.objects.filter(
+            is_approved=False,
+            request_date__year=current_year,
+            request_date__month=current_month,
+            request_date__day=current_day,
+            added_by=request.user
+            ).count()
+
+            
+            # Count Number of customers who has withdrawn today
+            count_user_withdrawals_today = Transaction.objects.filter(
+                transaction_type='withdraw',
+                transaction_date__year=current_year,
+                transaction_date__month=current_month,
+                transaction_date__day=current_day,
+                added_by=request.user
+            ).count()
+
+            # Count Number of Customer Deposited today
+            count_user_deposit_today = Transaction.objects.filter(
+                transaction_type='deposit',
+                transaction_date__year=current_year,
+                transaction_date__month=current_month,
+                transaction_date__day=current_day,
+                added_by=request.user
+            ).count()
+                
+            
+            
+            # Call the methods in your model to get the total deposits and withdrawals 
+            total_deposits = Transaction.get_total_deposits(current_year, current_month)
+            total_withdrawals = Transaction.get_total_withdrawals(current_year, current_month)
+            # Calculate the deposited balance
+            deposited_balance = total_deposits - total_withdrawals
+            #Get Day of today from current date and time
+            date_today = datetime.datetime.now().date
+            #Get recently registered customers
+            customers = Customer.objects.filter(added_by=request.user).order_by('-created_date')[:5]
              #Get Recent Transactions
-             transactions = Transaction.objects.filter(added_by=request.user).order_by('-transaction_date')[:5]
+            transactions = Transaction.objects.filter(added_by=request.user).order_by('-transaction_date')[:5]
              
              
         context = {
@@ -126,6 +236,17 @@ def index(request):
             'page_title':"Dashboard",
             'customers':customers,
             'transactions':transactions,
+            'total_deposits':total_deposits,
+            'total_withdrawals':total_withdrawals,
+            'deposited_balance':deposited_balance,
+            'user_total_deposit_today':user_total_deposit_today,
+            'current_date':current_date,
+            'user_total_withdrawal_today':user_total_withdrawal_today,
+            'user_total_withdrawal_request_today':user_total_withdrawal_request_today,
+            'tomorrow':tomorrow,
+            'count_user_deposit_today':count_user_deposit_today,
+            'count_user_withdrawals_today':count_user_withdrawals_today,
+            'count_user_withdrawal_request_today':count_user_withdrawal_request_today,
         }
         
         return render(request, 'accounts/index.html', context)
@@ -147,6 +268,17 @@ def index(request):
 #Update Profile Method
 @login_required(login_url='accounts-login')
 def profile_update(request):
+    # Get the current month and year
+    current_month = timezone.now().month
+    current_year = timezone.now().year
+        
+    # Call the methods in your model to get the total deposits and withdrawals
+    total_deposits = Transaction.get_total_deposits(current_year, current_month)
+    total_withdrawals = Transaction.get_total_withdrawals(current_year, current_month)
+
+    # Calculate the deposited balance
+    deposited_balance = total_deposits - total_withdrawals
+
     if request.method == 'POST':
         profile_form = ProfileUpdateForm(request.POST, request.FILES, 
         instance=request.user.profile)
@@ -160,13 +292,30 @@ def profile_update(request):
 
     context = {
             'profile_form': profile_form,
+            'total_deposits':total_deposits,
+            'total_withdrawals':total_withdrawals,
+            'deposited_balance':deposited_balance,
         }
     return render(request, 'accounts/update_profile.html', context)
     
 #User Profile
 @login_required(login_url='cashier-login')
 def profile(request):
+    # Get the current month and year
+    current_month = timezone.now().month
+    current_year = timezone.now().year
+        
+    # Call the methods in your model to get the total deposits and withdrawals
+    total_deposits = Transaction.get_total_deposits(current_year, current_month)
+    total_withdrawals = Transaction.get_total_withdrawals(current_year, current_month)
+
+    # Calculate the deposited balance
+    deposited_balance = total_deposits - total_withdrawals
+
     context = {
-        'page_title':'Profile Detail'
+        'page_title':'Profile Detail',
+        'total_deposits':total_deposits,
+        'total_withdrawals':total_withdrawals,
+        'deposited_balance':deposited_balance,
     }
     return render(request, 'accounts/profile.html', context)

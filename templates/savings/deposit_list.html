@@ -1,0 +1,154 @@
+{% extends 'dashboard_base.html' %}
+
+{% block title %} {{page_title}} {% endblock %}
+
+{% load static %}
+
+{% load crispy_forms_tags %}
+
+{% load humanize %}
+
+{% block content %}
+
+
+
+
+<!-- Left sidebar menu start -->
+{% include 'partials/_LeftSideBar.html' %}
+<!-- Left sidebar menu end -->
+
+<main class="ttr-wrapper">
+    <div class="container-fluid">
+        <div class="db-breadcrumb">
+            <h4 class="breadcrumb-title" style="color: rgb(4, 149, 16);">Hello! {{user.profile.role|capfirst}} {{ user.username }} </h4>
+            <ul class="db-breadcrumb-list">
+                <li><a href="#"><i class="fa fa-home"></i>Home</a></li>
+                <li style="color: blue;">{{page_title}}</li>
+            </ul>
+        </div>	
+
+       
+
+        
+
+        {% if user.is_authenticated and user.profile.role == 'admin' or user.is_superuser or user.profile.role == 'manager' or user.profile.role == 'cashier' %}
+
+        <div class="container">
+            <div class="row">
+                {% include 'partials/_alerts.html' %}
+               
+
+                <!--Customer List-->
+                <div class="col-lg-12 m-b30">
+                    <div class="table-responsive mb-8">
+                        {% if my_deposits %}
+                          <table class="table bg-white">
+                              <thead class="bg-info text-white">
+                                <tr>
+                                  <th scope="col">#</th>
+                                  <th scope="col" style="color: white;">Acct. Name</th>
+                                
+                                  <th scope="col" style="color: white;" nowrap>Phone</th>
+
+                                  <th scope="col" style="color: white;" nowrap>Acct No.</th>
+
+                                  
+                                  <th scope="col" style="color: white;" nowrap>Date</th>
+
+                                   
+                                  <th scope="col" style="color: white;" nowrap> Deposited</th>
+
+
+                                  <th scope="col" style="color: white;" nowrap>Acct. Bal.</th>
+ 
+                                </tr>
+                              </thead>
+                              <tbody>
+                                
+              
+                                {% for deposits in my_deposits %}
+                                <tr>
+                                  <th scope="row">{{ forloop.counter }}</th>
+
+                                  <td nowrap>{{ deposits.customer.customer.profile.full_name }}</td>
+                                 
+                                  <td>{{ deposits.customer.customer.profile.phone }}</td>
+
+                                  <td>#{{ deposits.customer.account_number}}</td>
+
+                                  <td>{{ deposits.transaction_date|naturaltime }}</td>
+
+                                  
+                                  <td>
+                                    <div class="button-container">
+                                      <a class="btn btn-info deposit-button" href="">
+                                        N{{ deposits.amount|intcomma }}
+                                     </a>
+ 
+                                       
+                                     </div>
+                                  </td>
+
+                                  <td>N{{ deposits.customer.account_balance|intcomma }}</td>
+
+                                  
+                                  
+                                  
+                                </tr>
+                                {% endfor %}    
+                                
+                                <tr>
+                                  <td colspan="5"></td>
+                                  <td style="color:red">
+                                    
+                                      N{{ my_total_deposits_today|intcomma }}
+                                    
+                                  </td>
+                                </tr>    
+                                
+                                
+                              </tbody>
+                          </table>
+                            
+                        {% else %}  
+                             <span style="text-align: center; color:red;">No Customer Yet</span>    
+                        {% endif %}
+                          </div>
+                      </div>
+                </div>
+
+            </div>
+            <!--Pagination-->
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="pagination-box">
+                        <ul class="pagination">
+                            {% if my_deposits.has_previous %}
+                                <li><a href="?page=1"><i class="fa fa-angle-double-left"></i></a></li>
+                                <li><a href="?page={{ my_deposits.previous_page_number }}">{{ my_deposits.previous_page_number }}</a></li>
+                            {% endif %}
+                            
+                            <li class="active"><a href="?page={{ my_deposits.number }}">{{ my_deposits.number }}</a></li>
+                            
+                            {% if my_deposits.has_next %}
+                                <li><a href="?page={{ my_deposits.next_page_number }}">{{ my_deposits.next_page_number }}</a></li>
+                                <li><a href="?page={{ my_deposits.paginator.num_pages }}"><i class="fa fa-angle-double-right"></i></a></li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        
+
+        
+      
+        
+        {% endif %}
+
+        
+    </div>
+</main>
+
+{% endblock %}

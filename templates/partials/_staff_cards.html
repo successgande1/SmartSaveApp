@@ -1,25 +1,30 @@
+{% load humanize %}
 <div class="row">
     <div class="col-md-6 col-lg-3 col-xl-3 col-sm-6 col-12">
-        <div class="widget-card widget-bg1">					 
+        <div class="widget-card widget-bg4">					 
             <div class="wc-item">
-                <h4 class="wc-title">
-                    My Deposits:
+                <h4 class="wc-title" style="font-size:0.8rem;">
+                    <a href="{% url 'deposit-list' %}">My Deposits:</a>
                 </h4>
-                <span style="color:gray;font-size:small">
-                    Today: {{date_today}} 
-                </span>
-                <span class="wc-stats">
-                    <span class="counter">{{ count_income }}</span>
+                <span style="color:black;font-size:0.7rem">
+                    Today: {{current_date}}
+                <span class="wc-stats counter">
+                   
+                    <h5 style="color: white; font-size:0.8rem;">
+                        <a href=" {% url 'deposit-list' %} ">N{{ user_total_deposit_today | intcomma }}</a>
+                        
+                    </h5>
+                    
                 </span>		
                 <div class="progress wc-progress">
-                    <div class="progress-bar" role="progressbar" style="width: 78%;" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+                    <div class="progress-bar" role="progressbar" style="width: 100%;" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
                 </div>
                 <span class="wc-progress-bx">
-                    <span class="wc-change">
-                        Change
+                    <span class="wc-change" style="font-size: 0.8rem; font-weight:bolder; color:white; font-family:sans-serif;">
+                        No. Deposited: 
                     </span>
-                    <span class="wc-number ml-auto">
-                        78%
+                    <span class="wc-number ml-auto" style="font-size: 0.8rem; color:white;">
+                       {{count_user_deposit_today}}
                     </span>
                 </span>
             </div>				      
@@ -28,79 +33,88 @@
     <div class="col-md-6 col-lg-3 col-xl-3 col-sm-6 col-12">
         <div class="widget-card widget-bg3">					 
             <div class="wc-item">
-                <h4 class="wc-title">
-                    My Withdrawals:
+                <h4 class="wc-title" style="font-size:0.8rem;">
+                    <a href="{% url 'withdrawal-list' %}">My Withdrawals:</a>
                 </h4>
-                <span style="color:black;font-size:small">
-                    This Month: {% now "M" %}, {% now "Y" %}
+                <span style="color:black;font-size:0.7rem">
+                    Today: {{current_date}}
                 </span>
                 <span class="wc-stats counter">
-                    <h5 style="color: rgb(0, 0, 7);">N</h5>
+                    <h5 style="color: rgb(246, 246, 247); font-size:0.8rem;">
+                        <a href=" {% url 'withdrawal-list' %} ">N{{ user_total_withdrawal_today | intcomma }}</a>
+                    </h5>
                 </span>		
                 <div class="progress wc-progress">
-                    <div class="progress-bar" role="progressbar" style="width: 65%;" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+                    <div class="progress-bar" role="progressbar" style="width: 100%;" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
                 </div>
                 <span class="wc-progress-bx">
-                    <span class="wc-change">
-                        Change
+                    <span class="wc-change" style="font-size: 0.8rem; font-weight:bolder; color:white; font-family:sans-serif;">
+                        No. Withdrawn
                     </span>
                     <span class="wc-number ml-auto">
-                        65%
+                        {{count_user_withdrawals_today}}
                     </span>
                 </span>
             </div>				      
         </div>
     </div>
+    <div class="col-md-6 col-lg-3 col-xl-3 col-sm-6 col-12">
+        <div class="widget-card widget-bg1">					 
+            <div class="wc-item">
+                <h4 class="wc-title" style="font-size:0.8rem;">
+                  Requested: 
+                </h4>
+                <span style="color:rgb(179, 180, 175);font-size:0.8rem;">
+                    Tomorrow: {{tomorrow}}
+                </span>
+                <span class="wc-stats counter">
+                   <h5 style="color: white; font-size:0.8rem;"> N{{ user_total_withdrawal_request_today | intcomma }}</h5>
+                </span>	
+                	
+                <div class="progress wc-progress">
+                    <div class="progress-bar" role="progressbar" style="width: 100%;" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <span class="wc-progress-bx">
+                    <span class="wc-change">
+                        No. of Request:
+                    </span>
+                    <span class="wc-number ml-auto">
+                        {{count_user_withdrawal_request_today}}
+                    </span>
+                </span>
+            </div>				      
+        </div>
+    </div>
+    
     <div class="col-md-6 col-lg-3 col-xl-3 col-sm-6 col-12">
         <div class="widget-card widget-bg2">					 
             <div class="wc-item">
-                <h4 class="wc-title">
-                    Balance:
+                <h4 class="wc-title" style="font-size: 0.9rem;">
+                     My Request:
                 </h4>
-                <span style="color:rgb(8, 8, 8);font-size:small">
-                    Today: {{date_today}} 
+                <span style="color:black;font-size:0.8rem">
+                    Tomorrow: {{tomorrow}}
                 </span>
                 <span class="wc-stats counter">
-                    {{ count_expenses }}
+                   <h5 style="color: rgb(244, 241, 241); font-size: 1rem;"> 
+                    <a href=" {% url 'request-list' %} ">{{ count_user_withdrawal_request_today | intcomma }} </a>
+                    
+                </h5> 
                 </span>		
                 <div class="progress wc-progress">
-                    <div class="progress-bar" role="progressbar" style="width: 88%;" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+                    <div class="progress-bar" role="progressbar" style="width: 100%;" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
                 </div>
                 <span class="wc-progress-bx">
                     <span class="wc-change">
-                        Change
+                        No. of Request:
                     </span>
                     <span class="wc-number ml-auto">
-                        88%
-                    </span>
-                </span>
-            </div>				      
-        </div>
-    </div>
-    <div class="col-md-6 col-lg-3 col-xl-3 col-sm-6 col-12">
-        <div class="widget-card widget-bg4">					 
-            <div class="wc-item">
-                <h4 class="wc-title">
-                    Request:
-                </h4>
-                <span style="color:black;font-size:small">
-                    Today: {{date_today}} 
-                <span class="wc-stats counter">
-                    <h5 style="color: white;">N</h5>
-                </span>		
-                <div class="progress wc-progress">
-                    <div class="progress-bar" role="progressbar" style="width: 90%;" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
-                </div>
-                <span class="wc-progress-bx">
-                    <span class="wc-change">
-                        Change
-                    </span>
-                    <span class="wc-number ml-auto">
-                        90%
+                        {{count_user_withdrawal_request_today}}
                     </span>
                 </span>
             </div>				      
         </div>
     </div>
    
+    
 </div>

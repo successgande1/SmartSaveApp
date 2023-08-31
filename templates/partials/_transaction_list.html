@@ -20,12 +20,12 @@
                                 <img src="{{ customer.customer.profile.image.url }}" alt=""/>
                             </span>
                             <span class="new-users-text">
-                                <a href="#" class="new-users-name">{{ customer.customer.profile.full_name }} </a>
-                                <span class="new-users-info">Acct. No:{{ customer.account_number }} </span>
+                                <a href="#" class="new-users-name" style="font-size:0.8rem;">{{ customer.customer.profile.full_name }} </a>
+                                <span class="new-users-info" style="color:red;">Acct. No:{{ customer.account_number }} </span>
                             </span>
                             <span class="new-users-text">
-                                <a href="#" class="new-users-name">{{ customer.customer.profile.phone }} </a>
-                                <span class="new-users-info">Bal. N{{ customer.account_balance|intcomma }} </span>
+                                <a href="#" class="new-users-name" style="font-size:0.8rem;">{{ customer.customer.profile.phone }} </a>
+                                <span class="new-users-info" style="color:green;">Bal. N{{ customer.account_balance|intcomma }} </span>
                             </span>
                             <span class="new-users-btn">
                                 <a href=" {% url 'customer_deposit' customer.pk %} " class="btn button-sm outline">View Profile</a>
@@ -55,16 +55,20 @@
                          
                                 <li>
                                     <span class="orders-title">
-                                        <a href="#" class="orders-title-name">{{transaction.transaction_type|capfirst}} </a>
-                                        <span class="orders-info">Time: {{transaction.transaction_date |naturaltime }} </span>
+                                        <a href="#" class="orders-title-name">
+                                            
+                                            {{transaction.transaction_type|capfirst}} 
+                                            
+                                        </a>
+                                        <span class="orders-info" style="color:orange;"> {{transaction.transaction_date |naturaltime }} </span>
                                     </span>
                                     <span class="orders-title">
-                                        <a href="#" class="orders-title-name">-- |N{{transaction.amount|intcomma}} </a>
+                                        <a href="#" class="orders-title-name" style="color:green; font-size:0.8rem;">-- |N{{transaction.amount|intcomma}} </a>
                                         <span class="orders-info"> - |By: {{transaction.added_by }} </span>
                                     </span>
                                     <span class="orders-title">
-                                        <a href="#" class="orders-title-name"> | {{transaction.customer.customer.profile.full_name}} </a>
-                                        <span class="orders-info"> - |Acct. No: {{transaction.customer.account_number }} </span>
+                                        <a href="#" class="orders-title-name" style="font-size: 0.7rem;"> | {{transaction.customer.customer.profile.full_name}} </a>
+                                        <span class="orders-info" style="color:red;"> - |Acct. No: {{transaction.customer.account_number }} </span>
                                     </span>
                                     <span class="orders-btn">
                                         {% if transaction.transaction_type == 'deposit' %}
@@ -76,8 +80,8 @@
                                             Withdrawal
                                         </a>
                                         {% else %}
-                                        <a href="#" class="btn button-sm blue">
-                                            Withdrawal Request
+                                        <a href="#" class="btn button-sm danger">
+                                           Request
                                         </a>
                                         {% endif %}
                                     </span>

@@ -27,9 +27,7 @@
         <!--Check if User is login and is also a staff and a superuser-->
         {% if user.is_authenticated and user.profile.role == 'admin' or user.is_superuser %}
         
-        <!-- Card -->
-        {% include 'partials/_admin_cards.html' %} 
-        <!-- Card END -->
+        
 
         <div class="container">
             <div class="row">
