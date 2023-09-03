@@ -11,6 +11,7 @@ from django.http import JsonResponse
 from django.db.models import Q, F
 from datetime import timedelta
 from django.utils import timezone
+import calendar
 
 
 # Create your views here.
@@ -24,12 +25,15 @@ def create_customer(request):
     total_deposits = Transaction.get_total_deposits(current_year, current_month)
     total_withdrawals = Transaction.get_total_withdrawals(current_year, current_month)
 
-    # Calculate the deposited balance
-    deposited_balance = total_deposits - total_withdrawals
+   
 
     logged_user = request.user
-    #Get Customers
-    customers = Customer.objects.order_by('-created_date')[:10]
+    if logged_user.is_authenticated and logged_user.is_superuser or logged_user.profile.role in ['admin']:
+        #Get All the Customers
+        customers = Customer.objects.order_by('-created_date')[:10]
+    elif logged_user.is_authenticated and logged_user.profile.role in ['cashier', 'manager']:
+        #Get All the Customers added by the Logged in User
+        customers = Customer.objects.filter(added_by=logged_user).order_by('-created_date')[:10]
     if request.method == 'POST':
         form = CustomerCreationForm(added_by=request.user, data=request.POST)
         if form.is_valid():
@@ -49,7 +53,7 @@ def create_customer(request):
         'form': form,
         'total_deposits':total_deposits,
         'total_withdrawals':total_withdrawals,
-        'deposited_balance':deposited_balance,
+       
         }
     return render(request, 'savings/create_customer_account.html', context)
 
@@ -61,42 +65,39 @@ def customer_list(request):
     current_day = current_date.day
     current_month = current_date.month
     current_year = current_date.year
-    
-    # Call the methods in your model to get the total deposits and withdrawals
-    total_deposits = Transaction.get_total_deposits(current_year, current_month)
-    total_withdrawals = Transaction.get_total_withdrawals(current_year, current_month)
 
+    
 
     #Check if logged user is admin or super admin
-    if request.user.is_superuser or request.user.profile.role == 'admin':
+    if request.user.is_superuser or request.user.profile.role in ['admin']:
         #Get List of Customers
         customers = Customer.objects.order_by('-created_date')
-
+        number_of_customers = customers.count()
         #Get Total Account balances of All Customers
-        logged_user_customer_deposit_total = Customer.get_total_customers_balance(current_year, current_month)
+        user_customers_deposit_total = Customer.get_total_customers_balance(current_year, current_month)
 
-    #Check if logged user is admin or super admin 
-    elif request.user.profile.role == 'cashier' or request.user.profile == 'manager':
+    #Check if logged user is cahsier or manager 
+    elif hasattr(request.user, 'profile') and request.user.profile.role in ['cashier', 'manager']:
         customers = Customer.objects.filter(added_by=request.user).order_by('-created_date')
-        
+        number_of_customers = customers.count()
         #Get logged user customers total Deposit for the month
-        logged_user_customer_deposit_total = Customer.get_user_total_customer_balance(current_year, current_month, request.user)
+        user_customers_deposit_total = Customer.get_user_total_customer_balance(current_year, current_month, request.user)
 
+    for customer in customers:
+        customer.has_pending_withdrawal = customer.set_pending_withdrawal_status()
 
     form = SearchForm(request.GET or None)
 
-    #Check Customers
+    #search Customers
     if request.method == "GET" and form.is_valid():
         search_query = form.cleaned_data['search_query']
         customers = Customer.objects.filter(
             Q(account_number__icontains=search_query) |
             Q(customer__profile__phone=search_query) |
-            Q(customer__profile__full_name__icontains=search_query)
+            Q(customer__profile__full_name__icontains=search_query) 
         )
 
-    for customer in customers: #Call the function that checks if customer has pending withdrawal
-        customer.has_pending_withdrawal = customer.set_pending_withdrawal_status()
-
+    
     paginator = Paginator(customers, 5)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
@@ -105,9 +106,8 @@ def customer_list(request):
         'page_title': 'Customer List',
         'customers': page_obj,
         'form': form,
-        'total_deposits':total_deposits,
-        'total_withdrawals':total_withdrawals,
-        'logged_user_customer_deposit_total':logged_user_customer_deposit_total,
+        'number_of_customers':number_of_customers, 
+        'user_customers_deposit_total':user_customers_deposit_total,
     }
     return render(request, 'savings/customer_list.html', context)
 
@@ -124,8 +124,7 @@ def customer_deposit(request, pk):
     total_deposits = Transaction.get_total_deposits(current_year, current_month)
     total_withdrawals = Transaction.get_total_withdrawals(current_year, current_month)
 
-    # Calculate the deposited balance
-    deposited_balance = total_deposits - total_withdrawals
+   
 
     customer = get_object_or_404(Customer, pk=pk)
 
@@ -145,7 +144,7 @@ def customer_deposit(request, pk):
             )
 
             messages.success(request, f'N{deposit_amount} Deposited Successfully for Acct. No:{customer.account_number}')
-            return redirect('deposit-list')
+            return redirect('transaction-list')
     else:
         form = DepositForm()
     
@@ -155,7 +154,7 @@ def customer_deposit(request, pk):
         'form': form,
         'total_deposits':total_deposits,
         'total_withdrawals':total_withdrawals,
-        'deposited_balance':deposited_balance,
+        
     }
     return render(request, 'savings/customer_deposit.html', context)
 
@@ -167,24 +166,27 @@ def deposit_list(request):
     current_day = current_date.day
     current_month = current_date.month
     current_year = current_date.year
+    month_name = calendar.month_name[current_month]
     
     # Call the methods in your model to get the total deposits and withdrawals
     total_deposits = Transaction.get_total_deposits(current_year, current_month)
     total_withdrawals = Transaction.get_total_withdrawals(current_year, current_month)
-    # total_deposit_today = Transaction.get_total_deposit_today(current_year, current_month, current_day)
-    # total_withdrawal_today = Transaction.get_total_withdrawal_today(current_year, current_month, current_day)
-    # total_request_today = WithdrawalRequest.get_total_withdrawal_request(current_year, current_month, current_day)
+   
 
-    # Calculate the deposited balance
-    deposited_balance = total_deposits - total_withdrawals
-
-    #Get Deposits
+    #Get Deposits 
     deposits = Transaction.objects.filter(transaction_type='deposit').order_by('-transaction_date')
-    if request.user.is_superuser:  # Admin user
+    if request.user.is_superuser or request.user.profile in ['admin']:  # Admin user
         
+        # FILTER DEPOSITED BY THE LOGGED CUSTOMER
+        my_today_deposit = Transaction.objects.filter(
+            added_by=request.user,
+            transaction_type='deposit',
+            transaction_date__year=current_year,
+            transaction_date__month=current_month
+        ).order_by('-transaction_date')
 
-        # Calculate the deposited balance
-        deposited_balance = total_deposits - total_withdrawals
+        #Calculate Total DEPOSITED BY LOGGED USER
+        my_total_deposits_today = my_today_deposit.aggregate(Sum('amount'))['amount__sum'] or 0.00
 
         # General Withdrawal List
         withdrawal = Transaction.objects.filter(
@@ -207,10 +209,8 @@ def deposit_list(request):
         # Calculate Total withdrawal Request for THE DAY
         total_withdrawal_request = customer_request.aggregate(Sum('amount'))['amount__sum'] or 0.00
     
-    else:  # Manager or Cashier user
-        # Calculate the deposited balance
-        deposited_balance = total_deposits - total_withdrawals
-
+    elif request.user.is_authenticated and request.user.profile.role in ['cashier', 'manager']:  # Manager or Cashier user
+       
         # Filter withdrawals for the current user for the DAY
         my_today_withdrawal = Transaction.objects.filter(
             transaction_type='withdraw',
@@ -259,10 +259,9 @@ def deposit_list(request):
         'my_deposits':page_obj,
         'total_deposits':total_deposits,
         'total_withdrawals':total_withdrawals,
-        'deposited_balance':deposited_balance,
         'my_total_deposits_today':my_total_deposits_today,
-        'my_total_withdrawal_requests_today':my_total_withdrawal_requests_today,
-        'my_total_withdrawal_today':my_total_withdrawal_today,
+        'month_name':month_name,
+        
     }
     return render(request, 'savings/deposit_list.html', context)
 
@@ -279,8 +278,7 @@ def transaction_list(request):
     total_deposits = Transaction.get_total_deposits(current_year, current_month)
     total_withdrawals = Transaction.get_total_withdrawals(current_year, current_month)
 
-    # Calculate the deposited balance
-    deposited_balance = total_deposits - total_withdrawals
+   
     
     #Get all the available properties and sort with slice
     transactions = Transaction.objects.order_by('-transaction_date')
@@ -332,7 +330,7 @@ def transaction_list(request):
         'page_title':'Transactions',
         'total_deposits':total_deposits,
         'total_withdrawals':total_withdrawals,
-        'deposited_balance':deposited_balance,
+        
     }
     return render(request, 'savings/transaction_list.html', context)
 
@@ -347,8 +345,7 @@ def withdrawal_request(request, pk):
     total_deposits = Transaction.get_total_deposits(current_year, current_month)
     total_withdrawals = Transaction.get_total_withdrawals(current_year, current_month)
 
-    # Calculate the deposited balance
-    deposited_balance = total_deposits - total_withdrawals
+   
 
     customer = get_object_or_404(Customer, pk=pk)
 
@@ -372,7 +369,7 @@ def withdrawal_request(request, pk):
         'form': form,
         'total_deposits':total_deposits,
         'total_withdrawals':total_withdrawals,
-        'deposited_balance':deposited_balance,
+        
     }
     return render(request, 'savings/customer_deposit.html', context)
 
@@ -385,24 +382,24 @@ def withdrawal_request_list(request):
     current_month = current_date.month
     current_year = current_date.year
 
-    #Determine current time in the local time zone with a duration of one day ago 
-    time_threshold = timezone.localtime() - timedelta(days=1)
-
     total_deposits = Transaction.get_total_deposits(current_year, current_month)
     total_withdrawals = Transaction.get_total_withdrawals(current_year, current_month)
-    total_withdrawal_today = Transaction.get_total_withdrawal_today(current_year, current_month, current_day)
+    
     #Call Method to calculate Total Amount Requested by logged in User
     my_total_withdrawal_requests_today = WithdrawalRequest.get_total_withdrawal_request_by_user(current_year, current_month, current_day, request.user)
     #Call Method to calculate Total Amount Requested by logged in User
     total_withdrawal_requests_today = WithdrawalRequest.get_total_withdrawal_request(current_year, current_month, current_day)
     
+    #Current Month TOTAL PENDING WITHDRAWAL REQUEST
+    current_month_pending_requests_total = WithdrawalRequest.get_month_total_withdrawal_request(current_year, current_month)
+    
+    #Count Number of PENDING REQUEST
+    number_pending_request = WithdrawalRequest.objects.filter(is_approved=False).count()
+
     total_general_withdrawals = 0.00  # Initialize this variable for the scope
 
     if request.user.is_superuser or request.user.profile.role == 'admin':  # Admin user 
-        
-
-        deposited_balance = total_deposits - total_withdrawals
-
+      
         withdrawal = Transaction.objects.filter(
             transaction_type='withdraw',
             transaction_date__year=current_year,
@@ -411,45 +408,45 @@ def withdrawal_request_list(request):
         
         total_general_withdrawals = withdrawal.aggregate(Sum('amount'))['amount__sum'] or 0.00
 
-        customer_request = WithdrawalRequest.objects.filter(
-            is_approved=False,
-            request_date__year=current_year,
-            request_date__month=current_month,
-            request_date__day=current_day
-        )
+        # logged_user_withdrawal_request = WithdrawalRequest.objects.filter(
+        #     is_approved=False,
+        #     request_date__year=current_year,
+        #     request_date__month=current_month,
+        #     request_date__day=current_day
+        # )
 
-        #Filter all Withdrawal request done by logged in user FOR THE DAY
+        #Filter all Withdrawal request PENDING APPROVAL
         logged_user_withdrawal_request = WithdrawalRequest.objects.filter(
+                is_approved=False,
                 request_date__year=current_year,
                 request_date__month=current_month,
-                request_date__day=current_day
             ).order_by('-request_date')
 
-    else:  # Cashier user
+    elif request.user.profile.role in ['cashier', 'manager']:  # Cashier user
         
-        deposited_balance = total_deposits - total_withdrawals
+        #Current Month TOTAL PENDING WITHDRAWAL REQUEST ADDED BY CASHIER/MANAGER
+        current_month_pending_requests_total = WithdrawalRequest.get_cashier_month_total_withdrawal_request(current_year, current_month, request.user)
         
+        #Count Number of PENDING REQUEST MADE BY CASHIER/MANAGER
+        number_pending_request = WithdrawalRequest.objects.filter(added_by=request.user, is_approved=False).count()
+
         #Get Logged in user added Withdrawal 
         withdrawal = Transaction.objects.filter(
             transaction_type='withdraw',
             transaction_date__year=current_year,
             transaction_date__month=current_month,
-            added_by=request.user  # Assuming the user field is related to the User model
+            added_by=request.user  # user field is related to the User model
         ).order_by('-transaction_date')
 
-        #Filter all Withdrawal request done by logged in user FOR THE DAY
+        #Filter all Withdrawal request done by logged in user FOR THE MONTH
         logged_user_withdrawal_request = WithdrawalRequest.objects.filter(
                 request_date__year=current_year,
                 request_date__month=current_month,
-                request_date__day=current_day,
+                #request_date__day=current_day,
                 added_by=request.user # Assuming Customer is related to the User model
         ).order_by('-request_date')
 
-        
-        
-        
-
-    
+     
 
     form = SearchForm(request.GET or None)
 
@@ -470,13 +467,13 @@ def withdrawal_request_list(request):
         'customers': page_obj,
         'page_title': 'Request List',
         'form': form,
-        'time_threshold': True,
         'total_deposits': total_deposits,
         'total_withdrawals': total_withdrawals,
-        'deposited_balance': deposited_balance,
+        'current_month_pending_requests_total':current_month_pending_requests_total,
         'total_withdrawal_requests_today':total_withdrawal_requests_today, 
         'total_general_withdrawals': total_general_withdrawals,
         'my_total_withdrawal_requests_today':my_total_withdrawal_requests_today,
+        'number_pending_request':number_pending_request,
     }
     return render(request, 'savings/withdrawal_request_list.html', context)
 
@@ -551,14 +548,8 @@ def withdrawal_list(request):
         # Calculate Total withdrawal Request for THE DAY
         total_withdrawal_request = customer_request.aggregate(Sum('amount'))['amount__sum'] or 0.00
     
-    else:  # Manager or Cashier user
-        # Call the methods in the Transaction model to get the total deposits and withdrawals
-        # total_deposits = Transaction.get_total_deposits(current_year, current_month)
-        # total_withdrawals = Transaction.get_total_withdrawals(current_year, current_month)
-        # total_deposit_today = Transaction.get_total_deposit_today(current_year, current_month, current_day)
-        # total_withdrawal_today = Transaction.get_total_withdrawal_today(current_year, current_month, current_day)
-        # total_request_today = WithdrawalRequest.get_total_withdrawal_request(current_year, current_month, current_day)
-
+    elif request.user.profile.role in ['cashier', 'manager'] and request.user.profile.is_active:  # Manager or Cashier user
+        
         # Calculate the deposited balance
         deposited_balance = total_deposits - total_withdrawals
         # Filter withdrawals for the current user for the current Month
@@ -696,8 +687,7 @@ def list_charged_customers(request):
     total_deposits = Transaction.get_total_deposits(current_year, current_month)
     total_withdrawals = Transaction.get_total_withdrawals(current_year, current_month)
 
-    # Calculate the deposited balance
-    deposited_balance = total_deposits - total_withdrawals
+  
 
     
     # Calculate the sum of charged_amount for the current month
@@ -722,8 +712,50 @@ def list_charged_customers(request):
         'eligible_customers': page_obj,
         'total_deposits':total_deposits,
         'total_withdrawals':total_withdrawals,
-        'deposited_balance':deposited_balance,
-        # 'total_requested_amount':total_requested_amount,
+       
 
     }
     return render(request, 'savings/process_charge.html', context)
+
+#Customer Statement view
+@login_required(login_url='accounts-login')
+def customer_statement(request, pk):
+    #Get current date, month, year and day
+    current_date = timezone.now()
+    current_day = current_date.day
+    current_month = current_date.month
+    current_year = current_date.year
+    month_name = calendar.month_name[current_month]
+
+    customer = get_object_or_404(Customer, pk=pk)
+
+    customer_total_deposited_this_month = Transaction.get_customer_total_desposited_current_month(current_year,current_month,customer)
+
+    customer_transactions = Transaction.objects.filter(customer=customer,  transaction_date__year=current_year, transaction_date__month=current_month)
+    
+    form = SearchTransactionForm(request.GET or None)
+
+    if request.method == "GET" and form.is_valid():
+        search_query = form.cleaned_data['search_query']
+        #Filter Request added by logged in users
+        customer_transactions = Transaction.objects.filter(
+            
+            Q(transaction_ref__icontains=search_query)
+        )
+    else:
+        form = SearchTransactionForm()
+
+    paginator = Paginator(customer_transactions, 5)  # Show 5 Customers per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    
+    context = {
+        'form':form,
+        'current_year':current_year,
+        'month_name':month_name,
+        'page_title':'Customer Statement',
+        'customer_transactions':page_obj,
+        'customer_total_deposited_this_month':customer_total_deposited_this_month,
+    }
+    return render(request, 'savings/statement.html', context)

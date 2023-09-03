@@ -28,7 +28,7 @@
                                 <span class="new-users-info" style="color:green;">Bal. N{{ customer.account_balance|intcomma }} </span>
                             </span>
                             <span class="new-users-btn">
-                                <a href=" {% url 'customer_deposit' customer.pk %} " class="btn button-sm outline">View Profile</a>
+                                <a href=" {% url 'customer_deposit' customer.pk %} " class="btn button-sm outline">Deposit</a>
                             </span>
                         </li>
                         {% endfor %}
@@ -75,7 +75,7 @@
                                         <a href="#" class="btn button-sm green">
                                             Deposit
                                         </a>
-                                        {% elif transaction.transaction_type == 'withdrawal'  %}
+                                        {% elif transaction.transaction_type == 'withdraw'  %}
                                         <a href="#" class="btn button-sm red">
                                             Withdrawal
                                         </a>

@@ -6,9 +6,17 @@ from random import randint
 import uuid
 from uuid import UUID
 from json import JSONEncoder
-from datetime import timedelta
+from datetime import datetime, timedelta
 from django.utils import timezone
 from django.db.models import Sum
+from decimal import Decimal 
+from django.db.models import Q
+
+class CustomerManager(models.Manager):
+    def with_pending_withdrawals(self):
+        return self.filter(
+            Q(withdrawalrequest__is_approved=False)
+        )
 
 
 # Create your models here.
@@ -21,13 +29,17 @@ class Customer(models.Model):
     created_date = models.DateTimeField(auto_now_add=True, null=True) 
     last_updated = models.DateTimeField(auto_now_add=False, null=True) 
 
+    objects = CustomerManager()
+
+    def set_pending_withdrawal_status(self):
+        return self.withdrawalrequest_set.filter(is_approved=False).exists()
+
     def update_account_balance(self, amount):
         self.account_balance -= amount
         self.last_updated = timezone.now()
         self.save()
 
-    def set_pending_withdrawal_status(self):
-        return self.withdrawalrequest_set.filter(is_approved=False).exists()
+    
     
     #Method for Total account balances of customers belonging to logged in user for the Month
     @classmethod
@@ -97,6 +109,16 @@ class Transaction(models.Model):
             added_by = user
         ).aggregate(total_withdrawals=Sum('amount'))['total_withdrawals'] or 0.00
     
+    # Method for calculating Total Deposite by CUSTOMER IN THE MONTH
+    @classmethod
+    def get_customer_total_desposited_current_month(cls, year, month, customer):  
+        return cls.objects.filter(
+            transaction_type='deposit',
+            transaction_date__year=year,
+            transaction_date__month=month,
+            customer = customer
+        ).aggregate(total_withdrawals=Sum('amount'))['total_withdrawals'] or 0.00
+    
      # Method for calculating Total withdrawal Added by user for the day
     @classmethod
     def get_user_total_withdrawal_today(cls, year, month, day, user):  
@@ -131,6 +153,17 @@ class Transaction(models.Model):
             self.customer.account_balance -= self.amount
             self.customer.last_updated = self.transaction_date
             self.customer.save()
+        # def save(self, *args, **kwargs):
+        #     if self.transaction_type == 'deposit':
+        #         self.customer.account_balance += Decimal(self.amount)  # Convert to Decimal
+        #         self.customer.last_updated = self.transaction_date
+        #         self.customer.save()
+        #     elif self.transaction_type == 'withdraw':
+        #         self.customer.account_balance -= Decimal(self.amount)  # Convert to Decimal
+        #         self.customer.last_updated = self.transaction_date
+        #         self.customer.save()
+
+        #     super(Transaction, self).save(*args, **kwargs)
 
     def __str__(self):
         return f' {self.customer} - Transaction Type: {self.transaction_type}'
@@ -144,6 +177,24 @@ class WithdrawalRequest(models.Model):
     is_approved = models.BooleanField(default=False)
     request_date = models.DateTimeField(auto_now_add=True)
     request_date_local = models.DateTimeField(auto_now_add=True)
+
+    #METHOD TO DETERMINE PENDING REQUEST BY CALCULATING TIME
+    def is_request_pending(self):
+        # Get the current time in the same timezone as request_date
+        current_time = timezone.localtime(timezone.now(), timezone=timezone.get_current_timezone())
+        
+        # Calculate the time difference between the current time and the request_date
+        time_difference = current_time - self.request_date
+
+        # Check if the time difference is less than 24 hours
+        if time_difference < timedelta(hours=24):
+            return True
+        else:
+            return False
+
+
+     
+        
 
     @classmethod #Method for getting all customer total withdrawal Request for the day
     def get_total_withdrawal_request(cls, year, month, day):
@@ -164,6 +215,24 @@ class WithdrawalRequest(models.Model):
         ).aggregate(total_request=Sum('amount'))['total_request']
         return total_request or 0.00
 
+    @classmethod #Method for getting all customer total withdrawal Request for the MONTH
+    def get_month_total_withdrawal_request(cls, year, month):
+        total_request = cls.objects.filter(
+            is_approved=False,
+            request_date__year=year,
+            request_date__month=month
+        ).aggregate(total_request=Sum('amount'))['total_request']
+        return total_request or 0.00
+    
+    @classmethod #Method for getting all customer total withdrawal Request BY USER for the MONTH
+    def get_cashier_month_total_withdrawal_request(cls, year, month, user):
+        total_request = cls.objects.filter(
+            is_approved=False,
+            request_date__year=year,
+            request_date__month=month,
+            added_by = user
+        ).aggregate(total_request=Sum('amount'))['total_request']
+        return total_request or 0.00
 
 
     #Save Reference Number

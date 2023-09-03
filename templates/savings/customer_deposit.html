@@ -55,13 +55,18 @@
                                                  <th scope="row">Phone</th>
                                                  <td>{{customer.customer.profile.phone}}</td>                                   
                                                </tr>  
+
+                                               <tr>
+                                                <th scope="row" nowrap>Acct. No.</th>
+                                                <td style="color:blue;">#{{customer.account_number}}</td>                                   
+                                              </tr> 
                                   
                                                <tr>
                                                  <th scope="row">Address</th>
                                                  <td>{{customer.customer.profile.address|capfirst}}</td>                                   
                                                </tr>   
                                                <tr>
-                                                <th scope="row">Acct. Bal.</th>
+                                                <th scope="row" nowrap>Acct. Bal.</th>
                                                 <td style="color: red;">N{{customer.account_balance|intcomma}}</td>                                   
                                               </tr>                 
                                           </tbody>
@@ -96,7 +101,11 @@
     
                                 {{ form | crispy }}
                         
-                        <input class="btn btn-success" type="submit" value="Add Deposit">
+                                {% if page_title == 'Withdrawal Request' %}
+                                <input class="btn btn-success" type="submit" value="Request Withdrawal">
+                                {% else %}
+                                <input class="btn btn-success" type="submit" value="Add Deposit">
+                                {% endif %}
     
                             </form>
                         </div>
@@ -135,6 +144,11 @@
                                                  <th scope="row">Phone</th>
                                                  <td>{{customer.customer.profile.phone}}</td>                                   
                                                </tr>  
+
+                                               <tr>
+                                                <th scope="row">Acct. No.</th>
+                                                <td style="color:blue;">#{{customer.account_number}}</td>                                   
+                                              </tr> 
                                   
                                                <tr>
                                                  <th scope="row">Address</th>

@@ -25,8 +25,8 @@
                 <li><a href="#"><i class="fa fa-home"></i>Home</a></li>
                 <li style="color: blue;">{{page_title}}</li>
                 {% if user.is_authenticated and user.profile.role == 'admin' or user.is_superuser  %}
-                <li>  <span style="color:red; font-size:1.2rem; font-family:sans-serif;"> {{number_of_customers}} Customers Total Balance:</span></li>
-                <li><a class="btn btn-info deposit-button" style="display: block; color:white; font-size:1.2rem;" href=""> N{{ user_customers_deposit_total|intcomma }}</a></li>
+                <li>  <span style="color:red; font-size:1.2rem; font-family:sans-serif;"> {{number_of_staff}} Active Staff</span></li>
+                
                 {% endif %}
               </ul>
         </div>	
@@ -40,7 +40,7 @@
               <div class="border bg-white p-3">
                  
                   <h4 class="text-center">
-                    Search Customer
+                    Search Staff
                   </h4>
                   <hr>
                   <form method="GET">
@@ -65,7 +65,7 @@
        
         
 
-        {% if user.is_authenticated and user.profile.role == 'manager' or user.profile.role == 'cashier' or user.profile.role == 'admin' or user.is_superuser %}
+        {% if user.is_authenticated and user.profile.role == 'admin' or user.is_superuser %}
         <div class="container">
             <div class="row">
                 {% include 'partials/_alerts.html' %}
@@ -74,20 +74,20 @@
                 <!--Customer List-->
                 <div class="col-lg-12 m-b30">
                     <div class="table-responsive mb-8">
-                        {% if customers %}
+                        {% if staff_list %}
                           <table class="table bg-white">
                               <thead class="bg-info text-white">
                                 <tr>
                                   <th scope="col">#</th>
-                                  <th scope="col" style="color: white;">Acct. Name</th>
+                                  <th scope="col" style="color: white;">Staff Full Name</th>
                                 
                                   <th scope="col" style="color: white;" nowrap>Phone</th>
 
-                                  <th scope="col" style="color: white;" nowrap>Acct No.</th>
+                                  <th scope="col" style="color: white;" nowrap>Role</th>
 
-                                  <th scope="col" style="color: white;" nowrap>Address</th>
+                                  <th scope="col" style="color: white;" nowrap>Username</th>
                                   
-                                  <th scope="col" style="color: white;">Bal.</th>
+                                  <th scope="col" style="color: white;">Address.</th>
                                   
                                   <th scope="col" style="color: white;">Action</th>
                                  
@@ -96,45 +96,47 @@
                               <tbody>
                                 
               
-                                {% for customer in customers %}
+                                {% for worker in staff_list %}
                                 <tr>
                                   <th scope="row">{{ forloop.counter }}</th>
 
-                                  <td wrap>{{ customer.customer.profile.full_name }}</td>
+                                  <td nowrap>
+                                    {% if worker.profile.full_name %}
+                                    {{ worker.profile.full_name }}
+                                    {% else %}
+                                    Staff yet to update profile
+                                    {% endif %}
+                                  </td>
                                  
-                                  <td>{{ customer.customer.profile.phone }}</td>
+                                  <td>
+                                    {% if worker.profile.phone %}
+                                    {{ worker.profile.phone }}
+                                    {% else %}
+                                    Yet to update Phone
+                                    {% endif %}
+                                  </td>
 
-                                  <td>#{{ customer.account_number}}</td>
+                                  <td>{{ worker.role|capfirst}}</td>
 
-                                  <td wrap>{{ customer.customer.profile.address }}</td>
+                                  <td wrap>{{ worker.user.username }}</td>
 
                                   
-                                  <td>N{{ customer.account_balance|intcomma }}</td>
+                                  <td>
+                                    {% if worker.address %}
+                                    {{ worker.address }}
+                                    {% else %}
+                                    Yet to Update Profile
+                                    {% endif %}
+                                  </td>
                                   
                                   <td>
                                       
                                     <div class="button-container">
-                                     <a class="btn btn-info deposit-button" href=" {% url 'customer_deposit' customer.pk %} ">Deposit</a>
-<!--######################### Start Check if Customer has PENDING Withdrawal and less Deposit to Place a Request #################################################-->
-                                     {% if not customer.has_pending_withdrawal  %}
-                                        {% if customer.account_balance < customer.service_charge %}
-                                            <a class="btn btn-info withdrawal-button" href="">
-                                                Can't Request
-                                            </a>
+                                        {% if worker.profile.is_active %}
+                                        <a class="btn btn-danger withdraw-button" href=" ">Enable</a>
                                         {% else %}
-                                            <a class="btn btn-info withdrawal-button" href="{% url 'withdrawal_request' customer.pk %}">
-                                                Request
-                                            </a>
+                                        <a class="btn btn-danger" href=" {% url 'accounts-disable-user' worker.pk %}  ">Disable</a>
                                         {% endif %}
-                                      {% else %}
-                                          <a class="btn btn-info withdrawal-button" href="">
-                                              Pending
-                                          </a>
-                                      {% endif %}
-<!--######################### End Check if Customer has PENDING Withdrawal and less Deposit to Place a Request End #################################################-->
-                                      <a class="btn btn-info deposit-button" href="{% url 'customer_statement' customer.pk %}">
-                                        statement
-                                      </a>
                                       
                                     </div>
                                       
@@ -142,21 +144,13 @@
                                 </tr>
                                 {% endfor %}    
                                 
-                                <tr>
-                                  <td colspan="5"></td>
-                                  <td style="color:white; font-size:1.2rem;">
-                                    <div class="button-container">
-                                      <a class="btn btn-info deposit-button">N{{ user_customers_deposit_total|intcomma }}</a> 
-                                    </div>
-                                    
-                                  </td>
-                                </tr>    
+                                
                                  
                               </tbody>
                           </table>
                             
                         {% else %}  
-                             <span style="text-align: center; color:red;">No Customer Yet</span>    
+                             <span style="text-align: center; color:red;">No Staff Yet</span>    
                         {% endif %}
                           </div>
                       </div>
@@ -168,16 +162,16 @@
                 <div class="col-md-12">
                     <div class="pagination-box">
                         <ul class="pagination">
-                            {% if customers.has_previous %}
+                            {% if staff_list.has_previous %}
                                 <li><a href="?page=1"><i class="fa fa-angle-double-left"></i></a></li>
-                                <li><a href="?page={{ customers.previous_page_number }}">{{ customers.previous_page_number }}</a></li>
+                                <li><a href="?page={{ staff_list.previous_page_number }}">{{ staff_list.previous_page_number }}</a></li>
                             {% endif %}
                             
-                            <li class="active"><a href="?page={{ customers.number }}">{{ customers.number }}</a></li>
+                            <li class="active"><a href="?page={{ staff_list.number }}">{{ staff_list.number }}</a></li>
                             
-                            {% if customers.has_next %}
-                                <li><a href="?page={{ customers.next_page_number }}">{{ customers.next_page_number }}</a></li>
-                                <li><a href="?page={{ customers.paginator.num_pages }}"><i class="fa fa-angle-double-right"></i></a></li>
+                            {% if staff_list.has_next %}
+                                <li><a href="?page={{ staff_list.next_page_number }}">{{ staff_list.next_page_number }}</a></li>
+                                <li><a href="?page={{ staff_list.paginator.num_pages }}"><i class="fa fa-angle-double-right"></i></a></li>
                             {% endif %}
                         </ul>
                     </div>

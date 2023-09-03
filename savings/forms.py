@@ -1,4 +1,4 @@
-from.models import Customer, Transaction, WithdrawalRequest
+from.models import Customer, Transaction, WithdrawalRequest, ServiceCharge
 from django import forms
 from django.forms import ModelForm
 from django.contrib.auth.models import User
@@ -7,6 +7,9 @@ import random
 import secrets
 from.filters import TransactionFilter, CustomerFilter
 from django.core.exceptions import ValidationError
+import calendar
+from datetime import datetime
+from calendar import month_name
 used_numbers = set()
 
 #Customer Creation form
@@ -67,25 +70,24 @@ class DepositForm(forms.ModelForm):
         model = Transaction
         fields = ['amount', 'transaction_remark']
 
-# class SearchTransactionForm(forms.Form):
-#     transaction_ref = forms.CharField(max_length=100, required=False)
+        
+    def clean_amount(self):
+        amount = self.cleaned_data.get('amount')
 
-#     def clean_transaction_ref(self):
-#         transaction_ref = self.cleaned_data.get('transaction_ref')
+        if amount is None:
+            raise forms.ValidationError("Amount is required.")
+        if amount <= 0:
+            raise forms.ValidationError("Amount must be greater than 0.")
         
-#         if not transaction_ref:
-#             raise ValidationError("Please provide a transaction reference.")
-        
-#         queryset = Transaction.objects.filter(transaction_ref=transaction_ref)
-#         if not queryset.exists():
-#             raise ValidationError("Transaction not found.")
-        
-#         return transaction_ref
+        # Define the minimum deposit amount here
+        MINIMUM_DEPOSIT_AMOUNT = 200  # Set your desired minimum amount
 
-#     def search(self):
-#         transaction_ref = self.cleaned_data.get('transaction_ref')
-#         queryset = Transaction.objects.filter(transaction_ref=transaction_ref)
-#         return queryset
+        if amount < MINIMUM_DEPOSIT_AMOUNT:
+            raise forms.ValidationError(f"Minimum deposit amount is N{MINIMUM_DEPOSIT_AMOUNT}.")
+
+        return amount
+
+
     
 class WithdrawalRequestForm(forms.ModelForm):
     class Meta:
@@ -98,21 +100,41 @@ class WithdrawalRequestForm(forms.ModelForm):
 
     def clean_amount(self):
         amount = self.cleaned_data.get('amount')
+
         if amount is None:
             raise forms.ValidationError("Amount is required.")
         if amount <= 0:
             raise forms.ValidationError("Amount must be greater than 0.")
-        available_balance = self.customer.account_balance - self.customer.service_charge
-        if available_balance <= 0:
-            raise forms.ValidationError("No available balance for withdrawal.")
-        if amount > available_balance:
-            raise forms.ValidationError("Withdrawal amount exceeds available balance after SERVICE CHARGE deduction.")
+
+        if amount > self.customer.account_balance:
+            raise forms.ValidationError("Withdrawal amount exceeds available balance.")
+
         # Check for pending withdrawal requests
         pending_requests = WithdrawalRequest.objects.filter(customer=self.customer, is_approved=False).exists()
+
         if pending_requests:
             raise forms.ValidationError("Customer has a pending withdrawal request.")
-        
+
+        # Check if the customer has been charged for the current month
+        from datetime import datetime
+        current_month = datetime.now().month
+        charged_this_month = ServiceCharge.objects.filter(charged_customer=self.customer, charged_date__month=current_month).exists()
+
+        if charged_this_month:
+            # If the customer has already been charged this month, allow full withdrawal
+            return amount
+
+        # Calculate the minimum amount that leaves a balance equal to the service charge
+        min_withdrawal_amount = self.customer.account_balance - self.customer.service_charge
+
+        if amount > min_withdrawal_amount:
+            raise forms.ValidationError("Withdrawal amount does not leave the required balance.")
+
         return amount
 
 class SearchForm(forms.Form):
     search_query = forms.CharField(max_length=100, required=False, label='Search by Name, Phone or acct. No.')
+
+
+class SearchTransactionForm(forms.Form):
+    search_query = forms.CharField(max_length=100, required=False, label='Search by Transaction ID.')

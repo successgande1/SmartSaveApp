@@ -7,6 +7,7 @@ import json
 from savings.models import Customer, Transaction, WithdrawalRequest
 from django.db.models import Count, Sum
 import datetime
+from django.db.models import Q, F
 from .models import Profile
 from django.contrib.auth.views import LoginView
 from.forms import *
@@ -93,7 +94,7 @@ def index(request):
         messages.warning(request, 'Not Logged In')
         return redirect('accounts-login')
     
-    if logged_user.is_superuser:
+    if logged_user.is_superuser or logged_user.profile.role in ['admin']:
         # Get the current month and year
         current_date = timezone.now()
         current_day = current_date.day
@@ -111,6 +112,11 @@ def index(request):
         total_withdrawal_request_today = WithdrawalRequest.get_total_withdrawal_request(current_year, current_month, current_day)
         total_deposits = Transaction.get_total_deposits(current_year, current_month)
         total_withdrawals = Transaction.get_total_withdrawals(current_year, current_month)
+
+        #Count all the available customers
+        number_of_customers = Customer.objects.all().count()
+
+        total_customers_balance = Customer.get_total_customers_balance(current_year, current_month)
 
         #Filter all Withdrawal request done for THE DAY
         count_withdrawal_request_today = WithdrawalRequest.objects.filter(
@@ -137,8 +143,7 @@ def index(request):
             transaction_date__day=current_day
         ).count()
 
-        # Calculate the deposited balance
-        deposited_balance = total_deposits - total_withdrawals
+       
 
         #Get recently registered customers
         customers = Customer.objects.order_by('-created_date')[:5]
@@ -148,9 +153,10 @@ def index(request):
         #Get Day of today from current date and time
         date_today = datetime.datetime.now().date
         context = {
+            'total_customers_balance':total_customers_balance,
             'total_deposits':total_deposits,
             'total_withdrawals':total_withdrawals,
-            'deposited_balance':deposited_balance,
+            'number_of_customers':number_of_customers,
             'total_withdrawal_today':total_withdrawal_today, 
             'current_date':current_date,
             'tomorrow':tomorrow,
@@ -165,7 +171,7 @@ def index(request):
         }
         return render(request, 'accounts/index.html', context)
     
-    elif logged_user.is_authenticated and hasattr(logged_user, 'profile'):
+    elif logged_user.is_authenticated and logged_user.profile.role in ['cashier', 'manager'] and logged_user.profile.is_active:
         profile = get_profile(logged_user)
         if not profile_complete(profile):
                 return redirect('accounts-profile-update')
@@ -221,8 +227,7 @@ def index(request):
             # Call the methods in your model to get the total deposits and withdrawals 
             total_deposits = Transaction.get_total_deposits(current_year, current_month)
             total_withdrawals = Transaction.get_total_withdrawals(current_year, current_month)
-            # Calculate the deposited balance
-            deposited_balance = total_deposits - total_withdrawals
+            
             #Get Day of today from current date and time
             date_today = datetime.datetime.now().date
             #Get recently registered customers
@@ -238,7 +243,7 @@ def index(request):
             'transactions':transactions,
             'total_deposits':total_deposits,
             'total_withdrawals':total_withdrawals,
-            'deposited_balance':deposited_balance,
+           
             'user_total_deposit_today':user_total_deposit_today,
             'current_date':current_date,
             'user_total_withdrawal_today':user_total_withdrawal_today,
@@ -276,8 +281,7 @@ def profile_update(request):
     total_deposits = Transaction.get_total_deposits(current_year, current_month)
     total_withdrawals = Transaction.get_total_withdrawals(current_year, current_month)
 
-    # Calculate the deposited balance
-    deposited_balance = total_deposits - total_withdrawals
+   
 
     if request.method == 'POST':
         profile_form = ProfileUpdateForm(request.POST, request.FILES, 
@@ -294,12 +298,12 @@ def profile_update(request):
             'profile_form': profile_form,
             'total_deposits':total_deposits,
             'total_withdrawals':total_withdrawals,
-            'deposited_balance':deposited_balance,
+            
         }
     return render(request, 'accounts/update_profile.html', context)
     
 #User Profile
-@login_required(login_url='cashier-login')
+@login_required(login_url='accounts-login')
 def profile(request):
     # Get the current month and year
     current_month = timezone.now().month
@@ -309,13 +313,40 @@ def profile(request):
     total_deposits = Transaction.get_total_deposits(current_year, current_month)
     total_withdrawals = Transaction.get_total_withdrawals(current_year, current_month)
 
-    # Calculate the deposited balance
-    deposited_balance = total_deposits - total_withdrawals
+   
 
     context = {
         'page_title':'Profile Detail',
         'total_deposits':total_deposits,
         'total_withdrawals':total_withdrawals,
-        'deposited_balance':deposited_balance,
+       
     }
     return render(request, 'accounts/profile.html', context)
+
+@login_required(login_url='accounts-login')
+def staff_list(request):
+    if request.user.is_superuser or request.user.profile.role in ['admin']:
+        #List of Staff
+        staff_list = Profile.objects.filter(Q(role="cashier") | Q(role="manager") & Q(is_active=True)).order_by('-last_updated')
+        number_of_staff = staff_list.count()
+
+    paginator = Paginator(staff_list, 5)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        'page_title':'List of Staff',
+        'staff_list':page_obj,
+        'number_of_staff':number_of_staff,
+    }
+    return render(request, 'accounts/staff_list.html', context)
+
+
+@login_required(login_url='accounts-login')
+def disable_user(request, pk):
+    if request.user.is_superuser or request.user.profile.role in ['admin']:
+        user_to_disable = get_object_or_404(Profile, pk=pk)
+        #Change the USER is_active to False
+        user_to_disable.is_active = False
+        user_to_disable.save()
+        return redirect('accounts-staff-list')

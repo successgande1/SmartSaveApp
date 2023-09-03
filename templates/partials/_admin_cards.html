@@ -62,10 +62,10 @@
         <div class="widget-card widget-bg1">					 
             <div class="wc-item">
                 <h4 class="wc-title" style="font-size:0.8rem;">
-                  No. of Request.: {{count_withdrawal_request_today}}
+                  Total No. of Customers: {{number_of_customers}}
                 </h4>
                 <span style="color:rgb(179, 180, 175);font-size:0.8rem">
-                    For: {{tomorrow}}
+                    As of: {{current_date}}
                 </span>
                 <span class="wc-stats counter">
                    <h5 style="color: white; font-size:0.9rem;"> </h5>
@@ -75,11 +75,11 @@
                     <div class="progress-bar" role="progressbar" style="width: 100%;" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
                 </div>
                 <span class="wc-progress-bx">
-                    <span class="wc-change" style="font-size: 1rem;">
-                        Number of Request: 
+                    <span class="wc-change" style="font-size: 0.8rem;">
+                        Their Total Bal.: 
                     </span>
-                    <span class="wc-number ml-auto" style="font-size: 1rem;">
-                        {{count_withdrawal_request_today}}
+                    <span class="wc-number ml-auto" style="font-size: 0.8rem; color:white;">
+                        N{{total_customers_balance|intcomma}}
                     </span>
                 </span>
             </div>				      
@@ -96,7 +96,7 @@
                     For: {{tomorrow}}
                 </span>
                 <span class="wc-stats counter">
-                   <h5 style="color: rgb(95, 3, 3); font-size:0.8rem;"> N{{ total_withdrawal_request_today | intcomma }} </h5> 
+                   <h5 style="color: rgb(249, 247, 247); font-size:0.8rem;"> N{{ total_withdrawal_request_today | intcomma }} </h5> 
                 </span>		
                 <div class="progress wc-progress">
                     <div class="progress-bar" role="progressbar" style="width: 100%;" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>

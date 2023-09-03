@@ -31,6 +31,7 @@ class Profile(models.Model):
     full_name = models.CharField(max_length=60, blank=True)
     phone = models.CharField(max_length=14, blank=True)
     address = models.CharField(max_length=160, blank=True)
+    is_active = models.BooleanField(default=True)  
     image = ProcessedImageField(
                                     upload_to='profile_images',
                                     processors=[Transpose(), ResizeToFill(150, 200)],
