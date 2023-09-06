@@ -107,31 +107,58 @@
 
                 <li>
                     <a href=" {% url 'savings-account' %} " class="ttr-material-button">
-                        <span class="ttr-icon"><i class="ti-book"></i></span>
+                        <span class="ttr-icon"><i class="ti-user"></i></span>
                         <span class="ttr-label"> Create Account</span>
                     </a>
                 </li>
-             
                 <li>
-                    <a href=" {% url 'customer-list' %} " class="ttr-material-button">
-                        <span class="ttr-icon"><i class="ti-book"></i></span>
-                        <span class="ttr-label"> Customers</span>
+                    <a href="#" class="ttr-material-button">
+                        <span class="ttr-icon"><i class="ti-comments"></i></span>
+                        <span class="ttr-label">Manage Customers</span>
+                        <span class="ttr-arrow-icon"><i class="fa fa-angle-down"></i></span>
                     </a>
+                    <ul>
+                        
+
+                        <li>
+                            <a href=" {% url 'customer-list' %} " class="ttr-material-button"><span class="ttr-label">Customers</span></a>
+                        </li>
+
+                        <li>
+                            <a href="{% url 'request-list' %}" class="ttr-material-button"><span class="ttr-label">Customer Request</span></a>
+                        </li>
+                        
+
+                    </ul>
                 </li>
+
                 <li>
-                    <a href=" {% url 'request-list' %} " class="ttr-material-button">
-                        <span class="ttr-icon"><i class="ti-book"></i></span>
-                        <span class="ttr-label">My Request</span></a>
+                    <a href="#" class="ttr-material-button">
+                        <span class="ttr-icon"><i class="fa fa-book"></i></span>
+                        <span class="ttr-label">Reports</span>
+                        <span class="ttr-arrow-icon"><i class="fa fa-angle-down"></i></span>
+                    </a>
+                    <ul>
+                        
+
+                        <li>
+                            <a href=" {% url 'transaction-list' %}" class="ttr-material-button"><span class="ttr-label">Transactions</span></a>
+                        </li>
+
+                        <li>
+                            <a href="" class="ttr-material-button"><span class="ttr-label">My Daily Activity</span></a>
+                        </li>
+                        
+
+                    </ul>
                 </li>
+             
+                
                
-                <li>
-                    <a href=" {% url 'transaction-list' %} " class="ttr-material-button">
-                        <span class="ttr-icon"><i class="ti-book"></i></span>
-                        <span class="ttr-label">Transactions</span></a>
-                </li>
+                
                 <li>
                     <a href=" {% url 'accounts-logout' %} " class="ttr-material-button">
-                        <span class="ttr-icon"><i class="ti-book"></i></span>
+                        <span class="ttr-icon"><i class="fa fa-smile-o"></i></span>
                         <span class="ttr-label">User Logout</span></a>
                 </li>
 
