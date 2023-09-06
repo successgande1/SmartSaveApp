@@ -119,6 +119,16 @@ class Transaction(models.Model):
             customer = customer
         ).aggregate(total_withdrawals=Sum('amount'))['total_withdrawals'] or 0.00
     
+    # Method for calculating Total Withdrawn by CUSTOMER IN THE MONTH
+    @classmethod
+    def get_customer_total_withdrawn_current_month(cls, year, month, customer):  
+        return cls.objects.filter(
+            transaction_type='withdraw',
+            transaction_date__year=year,
+            transaction_date__month=month,
+            customer = customer
+        ).aggregate(total_withdrawals=Sum('amount'))['total_withdrawals'] or 0.00
+    
      # Method for calculating Total withdrawal Added by user for the day
     @classmethod
     def get_user_total_withdrawal_today(cls, year, month, day, user):  

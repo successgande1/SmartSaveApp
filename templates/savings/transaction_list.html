@@ -24,11 +24,13 @@
             <ul class="db-breadcrumb-list">
                 <li><a href="#"><i class="fa fa-home"></i>Home</a></li>
                 <li style="color: blue;">{{page_title}}</li>
+                <li><span style="color: green; font-size:1rem; font-family:sans-serif;">Total Deposits: N{{total_deposits|intcomma}} </span></li>
+                <li><span style="color: red; font-size:1rem; font-family:sans-serif;">Total Withdrawals: N{{total_withdrawals|intcomma}} </span></li>
             </ul>
         </div>	
 
         <!--Check if User is login and is also a staff and a superuser-->
-        {% if user.is_authenticated and user.profile.role == 'admin' or user.is_superuser or user.profile.role == 'manager' or user.profile.role == 'cashier' %}
+        {% if user.is_authenticated and user.profile.is_active and user.profile.role == 'admin' or user.is_superuser or user.profile.role == 'manager' or user.profile.role == 'cashier' %}
         
         
         <!--Search Transaction Container Start-->
@@ -183,7 +185,7 @@
                       
 
                      
-
+ 
 
                       
                     </div>

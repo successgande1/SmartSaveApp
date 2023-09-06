@@ -34,6 +34,7 @@
         
         <!--Search Transaction Container Start-->
         <div class="container">
+          {% include 'partials/_alerts.html' %}
           <div class="row my-4">
 
             <div class="col-md-12">
@@ -60,17 +61,11 @@
 
           </div>
         </div>
-        <!--Search Transaction Container End-->
-
-       
         
-
         {% if user.is_authenticated and user.profile.role == 'admin' or user.is_superuser %}
         <div class="container">
             <div class="row">
-                {% include 'partials/_alerts.html' %}
                
-
                 <!--Customer List-->
                 <div class="col-lg-12 m-b30">
                     <div class="table-responsive mb-8">
@@ -101,16 +96,16 @@
                                   <th scope="row">{{ forloop.counter }}</th>
 
                                   <td nowrap>
-                                    {% if worker.profile.full_name %}
-                                    {{ worker.profile.full_name }}
+                                    {% if worker.full_name %}
+                                    {{ worker.full_name }}
                                     {% else %}
                                     Staff yet to update profile
                                     {% endif %}
                                   </td>
                                  
                                   <td>
-                                    {% if worker.profile.phone %}
-                                    {{ worker.profile.phone }}
+                                    {% if worker.phone %}
+                                    {{ worker.phone }}
                                     {% else %}
                                     Yet to update Phone
                                     {% endif %}
@@ -132,10 +127,10 @@
                                   <td>
                                       
                                     <div class="button-container">
-                                        {% if worker.profile.is_active %}
-                                        <a class="btn btn-danger withdraw-button" href=" ">Enable</a>
+                                        {% if worker.is_active %}
+                                        <a class="btn btn-danger withdraw-button" href="{% url 'accounts-disable-user' worker.pk %} ">Disable</a>
                                         {% else %}
-                                        <a class="btn btn-danger" href=" {% url 'accounts-disable-user' worker.pk %}  ">Disable</a>
+                                        <a class="btn btn-info deposit-button" href="{% url 'accounts-enable-user' worker.pk %}">Enable</a>
                                         {% endif %}
                                       
                                     </div>

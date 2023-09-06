@@ -7,6 +7,7 @@ import json
 from savings.models import Customer, Transaction, WithdrawalRequest
 from django.db.models import Count, Sum
 import datetime
+from savings.forms import *
 from django.db.models import Q, F
 from .models import Profile
 from django.contrib.auth.views import LoginView
@@ -100,8 +101,8 @@ def index(request):
         current_day = current_date.day
         current_month = current_date.month
         current_year = current_date.year
-        today = datetime.date.today()
-        tomorrow = today + datetime.timedelta(days=1)
+        #today = datetime.date.today()
+        #tomorrow = today + datetime.timedelta(days=1)
         
         # Call the methods in your model to get the total deposits and withdrawals ## 
         total_deposit_today = Transaction.get_total_deposit_today(current_year, current_month, current_day)
@@ -151,7 +152,7 @@ def index(request):
         #Get Recent Transactions
         transactions = Transaction.objects.order_by('-transaction_date')[:5]
         #Get Day of today from current date and time
-        date_today = datetime.datetime.now().date
+        #date_today = datetime.datetime.now().date
         context = {
             'total_customers_balance':total_customers_balance,
             'total_deposits':total_deposits,
@@ -159,7 +160,7 @@ def index(request):
             'number_of_customers':number_of_customers,
             'total_withdrawal_today':total_withdrawal_today, 
             'current_date':current_date,
-            'tomorrow':tomorrow,
+            #'tomorrow':tomorrow,
             'page_title':"Dashboard",
             'customers':customers,
             'transactions':transactions,
@@ -182,8 +183,8 @@ def index(request):
             current_day = current_date.day
             current_month = current_date.month
             current_year = current_date.year
-            today = datetime.date.today()
-            tomorrow = today + datetime.timedelta(days=1) 
+            # today = datetime.date.today()
+            # tomorrow = today + datetime.timedelta(days=1) 
         
             # Call the methods in model to get the total deposits added by logged in user ## 
             user_total_deposit_today = Transaction.get_user_total_desposited_today(current_year, current_month, current_day, request.user)
@@ -229,7 +230,7 @@ def index(request):
             total_withdrawals = Transaction.get_total_withdrawals(current_year, current_month)
             
             #Get Day of today from current date and time
-            date_today = datetime.datetime.now().date
+            # date_today = datetime.datetime.now().date
             #Get recently registered customers
             customers = Customer.objects.filter(added_by=request.user).order_by('-created_date')[:5]
              #Get Recent Transactions
@@ -237,7 +238,7 @@ def index(request):
              
              
         context = {
-            'date_today':date_today,
+            # 'date_today':date_today,
             'page_title':"Dashboard",
             'customers':customers,
             'transactions':transactions,
@@ -248,7 +249,7 @@ def index(request):
             'current_date':current_date,
             'user_total_withdrawal_today':user_total_withdrawal_today,
             'user_total_withdrawal_request_today':user_total_withdrawal_request_today,
-            'tomorrow':tomorrow,
+            #'tomorrow':tomorrow,
             'count_user_deposit_today':count_user_deposit_today,
             'count_user_withdrawals_today':count_user_withdrawals_today,
             'count_user_withdrawal_request_today':count_user_withdrawal_request_today,
@@ -327,8 +328,20 @@ def profile(request):
 def staff_list(request):
     if request.user.is_superuser or request.user.profile.role in ['admin']:
         #List of Staff
-        staff_list = Profile.objects.filter(Q(role="cashier") | Q(role="manager") & Q(is_active=True)).order_by('-last_updated')
+        staff_list = Profile.objects.filter(Q(role="cashier") | Q(role="manager") | Q(role="admin")).order_by('-last_updated')
         number_of_staff = staff_list.count()
+
+    form = SearchForm(request.GET or None)
+
+    if request.method == "GET" and form.is_valid():
+        search_query = form.cleaned_data['search_query']
+        #Filter staff users
+        staff_list = Profile.objects.filter(
+            Q(user__username__icontains=search_query) |
+            Q(phone__icontains=search_query) |
+            Q(full_name__icontains=search_query),
+            Q(role='cashier') | Q(role='manager') | Q(role='admin') 
+        )
 
     paginator = Paginator(staff_list, 5)
     page_number = request.GET.get('page')
@@ -338,10 +351,12 @@ def staff_list(request):
         'page_title':'List of Staff',
         'staff_list':page_obj,
         'number_of_staff':number_of_staff,
+        'form':form, 
     }
     return render(request, 'accounts/staff_list.html', context)
 
 
+#Disable user
 @login_required(login_url='accounts-login')
 def disable_user(request, pk):
     if request.user.is_superuser or request.user.profile.role in ['admin']:
@@ -349,4 +364,16 @@ def disable_user(request, pk):
         #Change the USER is_active to False
         user_to_disable.is_active = False
         user_to_disable.save()
+        messages.error(request, f'{user_to_disable.user.username} Disabled Successfully.')
+        return redirect('accounts-staff-list')
+    
+#Enable User
+@login_required(login_url='accounts-login')
+def enable_user(request, pk):
+    if request.user.is_superuser or request.user.profile.role in ['admin']:
+        user_to_enable = get_object_or_404(Profile, pk=pk)
+        #Change the USER is_active to False
+        user_to_enable.is_active = True
+        user_to_enable.save()
+        messages.success(request, f'{user_to_enable.user.username} Enabled Successfully.')
         return redirect('accounts-staff-list')

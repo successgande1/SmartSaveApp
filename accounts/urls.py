@@ -10,5 +10,6 @@ urlpatterns = [
     path('user/profile/', views.profile, name = 'accounts-profile'),
     path('staff/list/', views.staff_list, name = 'accounts-staff-list'),
     path('disable_user/<int:pk>/', views.disable_user, name = 'accounts-disable-user'),
+    path('enable_user/<int:pk>/', views.enable_user, name = 'accounts-enable-user'),
     path('logout/', auth_view.LogoutView.as_view(template_name='accounts/logout.html'), name = 'accounts-logout'),
 ]

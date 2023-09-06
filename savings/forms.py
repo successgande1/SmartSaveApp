@@ -10,6 +10,7 @@ from django.core.exceptions import ValidationError
 import calendar
 from datetime import datetime
 from calendar import month_name
+from django.utils import timezone
 used_numbers = set()
 
 #Customer Creation form
@@ -136,5 +137,48 @@ class SearchForm(forms.Form):
     search_query = forms.CharField(max_length=100, required=False, label='Search by Name, Phone or acct. No.')
 
 
-class SearchTransactionForm(forms.Form):
+class SearchTransactionForm(forms.Form): #Normal Transaction Search Form
     search_query = forms.CharField(max_length=100, required=False, label='Search by Transaction ID.')
+
+class ReportForm(forms.Form): #Deposit, Withdrawal and Service Charge Search Form
+    TRANSACTION_CHOICES = [
+        ('deposit', 'Deposit'),
+        ('withdraw', 'Withdraw'),
+        ('service_charge', 'Service Charge'),
+    ]
+
+    transaction_type = forms.ChoiceField(choices=TRANSACTION_CHOICES, required=True)
+    start_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}), initial=timezone.now().date())
+    end_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}), initial=timezone.now().date())
+
+class UserTransactionReportForm(forms.Form):
+    TRANSACTION_CHOICES = [
+        ('deposit', 'Deposit'),
+        ('withdraw', 'Withdraw'),
+        ('service_charge', 'Service Charge'),
+    ]
+
+    users = User.objects.filter(
+        profile__role__in=['admin', 'cashier', 'manager'],
+        profile__is_active=True
+    )  # Get users with the specified profile role and active status
+    user_choices = [(user.id, user.username) for user in users]
+
+    user = forms.ChoiceField(choices=user_choices, required=True)
+    transaction_type = forms.ChoiceField(choices=TRANSACTION_CHOICES, required=True)
+    start_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}), initial=timezone.now().date())
+    end_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}), initial=timezone.now().date())
+
+
+class DateRangeForm(forms.Form):
+    start_date = forms.DateField(
+        label='Start Date',
+        widget=forms.DateInput(attrs={'type': 'date'}),
+        required=True
+    )
+    
+    end_date = forms.DateField(
+        label='End Date',
+        widget=forms.DateInput(attrs={'type': 'date'}),
+        required=True
+    )

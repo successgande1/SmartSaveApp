@@ -88,6 +88,10 @@
 
                                   <th scope="col" style="color: white;" nowrap>Balance</th>
 
+                                  {% if not page_title == 'Process Service Charge' %}
+                                  <th scope="col" style="color: white;" nowrap>Charged Date</th>
+                                  {% endif %}
+
                                   {% if page_title == 'Process Service Charge' %}
                                   <th scope="col" style="color: white;" nowrap>Action</th>
                                   {% else %}
@@ -138,6 +142,9 @@
                                     N{{ customer.charged_customer.account_balance|intcomma }}
                                     {% endif %}
                                   </td>
+                                  {% if not page_title == 'Process Service Charge' %}
+                                  <td>{{ customer.charged_date}}</td>
+                                  {% endif %}
 
                                   {% if page_title == 'Process Service Charge'  %}
                                   <td> 
@@ -148,12 +155,7 @@
                                 </tr>
                                 {% endfor %} 
                                 <!-- Display the sum of charged_amount for the current month under the charged_amount column -->
-                                  <tr>
-                                    <td colspan="5"></td>
-                                    <td style="color:red">
-                                        N{{ charged_amount_sum|intcomma }}
-                                    </td>
-                                  </tr>
+                                  
 
                                 {% else %}
                                  <tr> <td colspan="2"></td> <td style="text-align: center; color:red; font-size:1.7rem; font-family:sans-serif;">No Eligible Customer</td> </tr>
@@ -163,7 +165,7 @@
                                
                               </tbody>
                           </table>
-
+ 
                           {% if page_title == 'Process Service Charge' and eligible_customers %}
                           <button class="btn btn-success" type="button" onclick="submitForm()">Process Service Charge</button>
                             {% endif %}

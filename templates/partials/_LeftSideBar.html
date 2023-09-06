@@ -26,86 +26,81 @@
                 
                 <!--Check if User is login and is also a staff and a superuser-->
                 {% if user.is_authenticated and user.profile.role == 'admin' or user.is_superuser %}
-
-                <li>
-                    <a href=" {% url 'accounts-create-user' %} " class="ttr-material-button">
-                        <span class="ttr-icon"><i class="ti-book"></i></span>
-                        <span class="ttr-label">Add Staff</span>
-                    </a>
-                </li>
-                <li>
-                    <a href=" {% url 'accounts-staff-list' %} " class="ttr-material-button">
-                        <span class="ttr-icon"><i class="ti-book"></i></span>
-                        <span class="ttr-label">View Staff</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{% url 'customer-list' %}" class="ttr-material-button">
-                        <span class="ttr-icon"><i class="ti-book"></i></span>
-                        <span class="ttr-label"> Customers</span>
-                    </a>
-                </li>
-                <li>
-                    <a href=" {% url 'request-list' %} " class="ttr-material-button">
-                        <span class="ttr-icon"><i class="ti-book"></i></span>
-                        <span class="ttr-label"> Request List</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{% url 'process_service_charge' %}" class="ttr-material-button">
-                        <span class="ttr-icon"><i class="ti-book"></i></span>
-                        <span class="ttr-label"> Process Charges</span>
-                    </a>
-                </li>
-
-                <li>
-                    <a href="{% url 'charged_customers_list' %}" class="ttr-material-button">
-                        <span class="ttr-icon"><i class="ti-book"></i></span>
-                        <span class="ttr-label"> List Charged Customers</span>
-                    </a>
-                </li>
-                <li>
-                    <a href=" {% url 'accounts-logout' %} " class="ttr-material-button">
-                        <span class="ttr-icon"><i class="ti-book"></i></span>
-                        <span class="ttr-label">User Logout</span></a>
-                </li>
-                
                 <li>
                     <a href="#" class="ttr-material-button">
-                        <span class="ttr-icon"><i class="ti-email"></i></span>
-                        <span class="ttr-label">Reports</span>
+                        <span class="ttr-icon"><i class="ti-user"></i></span>
+                        <span class="ttr-label">Staff Management</span>
                         <span class="ttr-arrow-icon"><i class="fa fa-angle-down"></i></span>
                     </a>
                     <ul>
                         <li>
-                            <a href=" {% url 'customer-list' %} " class="ttr-material-button"><span class="ttr-label">Customers</span></a>
-                        </li>
-
-                        <li>
-                            <a href=" {% url 'deposit-list' %} " class="ttr-material-button"><span class="ttr-label">Deposits</span></a>
-                        </li>
-
-                        <li>
-                            <a href="" class="ttr-material-button"><span class="ttr-label">Withdrawals</span></a>
-                        </li>
-
-                        <li>
-                            <a href=" {% url 'transaction-list' %} " class="ttr-material-button"><span class="ttr-label">Transactions</span></a>
-                        </li>
-                        
-                        <li>
-                            <a href=" {% url 'process_service_charge' %} " class="ttr-material-button"><span class="ttr-label">Charge Fee</span></a>
-                        </li>
-
-                        <li>
-                            <a href="" class="ttr-material-button"><span class="ttr-label">Monthly Income </span></a>
+                            <a href="{% url 'accounts-create-user' %} " class="ttr-material-button"><span class="ttr-label">Add Staff User</span></a>
                         </li>
                         <li>
-                            <a href="" class="ttr-material-button"><span class="ttr-label">Monthly Expenditure </span></a>
+                            <a href="{% url 'accounts-staff-list' %} " class="ttr-material-button"><span class="ttr-label">View Staff Users</span></a>
                         </li>
-                        
-                        
                     </ul>
+                </li>
+                <li>
+                    <a href="#" class="ttr-material-button">
+                        <span class="ttr-icon"><i class="ti-book"></i></span>
+                        <span class="ttr-label">Customer Management</span>
+                        <span class="ttr-arrow-icon"><i class="fa fa-angle-down"></i></span>
+                    </a>
+                    <ul>
+                        <li>
+                            <a href="{% url 'customer-list' %} " class="ttr-material-button"><span class="ttr-label">Customers</span></a>
+                        </li>
+                        <li>
+                            <a href="{% url 'request-list' %}  " class="ttr-material-button"><span class="ttr-label">Customer Request</span></a>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#" class="ttr-material-button">
+                        <span class="ttr-icon"><i class="ti-calendar"></i></span>
+                        <span class="ttr-label">Monthly Charges</span>
+                        <span class="ttr-arrow-icon"><i class="fa fa-angle-down"></i></span>
+                    </a>
+                    <ul>
+                        <li>
+                            <a href="{% url 'process_service_charge' %}" class="ttr-material-button"><span class="ttr-label">Customer Charges</span></a>
+                        </li>
+                        <li>
+                            <a href="{% url 'charged_customers_list' %}" class="ttr-material-button"><span class="ttr-label">Charged Customers</span></a>
+                        </li>
+                    </ul>
+                </li>
+
+                
+                
+                <li>
+                    <a href="#" class="ttr-material-button">
+                        <span class="ttr-icon"><i class="fa fa-book"></i></span>
+                        <span class="ttr-label">Reports</span>
+                        <span class="ttr-arrow-icon"><i class="fa fa-angle-down"></i></span>
+                    </a>
+                    <ul>
+                        
+
+                        <li>
+                            <a href=" {% url 'transaction-report' %} " class="ttr-material-button"><span class="ttr-label">Transactions</span></a>
+                        </li>
+
+                        <li>
+                            <a href="{% url 'user-transaction-report' %}" class="ttr-material-button"><span class="ttr-label">Staff Transactions</span></a>
+                        </li>
+                        <li>
+                            <a href="{% url 'admin-report' %}" class="ttr-material-button"><span class="ttr-label">Report Summary</span></a>
+                        </li>
+
+                    </ul>
+                </li>
+
+                <li>
+                    <a href=" {% url 'accounts-logout' %} " class="ttr-material-button">
+                        <span class="ttr-icon"><i class="fa fa-smile-o"></i></span>
+                        <span class="ttr-label">User Logout</span></a>
                 </li>
 
                 {% elif user.is_authenticated and user.profile.role == 'manager' or user.profile.role == 'cashier' %}

@@ -23,16 +23,16 @@
             <h4 class="breadcrumb-title" style="color: rgb(4, 149, 16);">Hello! {{user.profile.role|capfirst}} {{ user.username }} </h4>
             <ul class="db-breadcrumb-list">
                 <li><a href="#"><i class="fa fa-home"></i>Home</a></li>
-                <li style="color: black;">{{page_title}}</li>
-         
-                <li><span style="color:blue;"> Deposited: {{month_name}}, {{current_year}} = </span> <span style="color:green;">N{{customer_total_deposited_this_month|intcomma}}.</span></li>
-               
-                <li><span style="color:blue;">Withdrawan: {{month_name}}, {{current_year}} = </span> <span style="color:red;">N{{customer_total_withdrawn_this_month|intcomma}}</span></li>
-              </ul>
+                <li style="color: blue;">{{page_title}}</li>
+                {% if transactions %}
+                <li><span style="color: red; font-size:1rem; font-family:sans-serif;">Total Amount: N{{total_amount|intcomma}} </span></li>
+                <li><a class="btn btn-success" style="display: block; color:white;"> {{transaction_count}} Transactions</a></li>
+                {% endif %}
+            </ul>
         </div>	
 
         <!--Check if User is login and is also a staff and a superuser-->
-        {% if user.is_authenticated and user.profile.role == 'admin' or user.is_superuser or user.profile.role == 'manager' or user.profile.role == 'cashier' %}
+        {% if user.is_authenticated and user.profile.is_active and user.profile.role == 'admin' or user.is_superuser %}
         
         
         <!--Search Transaction Container Start-->
@@ -44,7 +44,7 @@
                    
                     <h4 class="text-center">Search Transaction</h4>
                     <hr>
-                    <form method="GET">
+                    <form method="POST">
                       {% csrf_token %}
     
                       {{ form | crispy }}
@@ -90,10 +90,11 @@
 
                                   <th scope="col" style="color: white;" nowrap>Added Date</th>
 
-                                  <th scope="col" style="color: white;" nowrap>Type</th>
-
                                   
                                   <th scope="col" style="color: white;" >Amount.</th>
+                                 
+
+                                  <th scope="col" style="color: white;" >Bal.</th>
                                   
                                   <th scope="col" style="color: white;" nowrap>Type</th>
 
@@ -106,7 +107,7 @@
                                 <!--Transaction List Starts Here-->
                                 
 
-                                {% for transaction in customer_transactions %}
+                                {% for transaction in transactions %}
                                 <tr>
                                   <th scope="row">{{ forloop.counter }}</th>
 
@@ -120,13 +121,11 @@
 
                                   <td>{{ transaction.added_by }}</td>
 
-                                  <td>{{ transaction.transaction_type }}</td>
-
                                   <td nowrap>{{ transaction.transaction_date|naturaltime }}</td>
 
                                   <td style="color: red;">N{{ transaction.amount|intcomma }}</td>
 
-                                  
+                                  <td>N{{ transaction.customer.account_balance|intcomma }}</td>
                                   
                                   <td>
                                       
@@ -140,9 +139,9 @@
                                       <a class="btn btn-red withdrawal-button" href="">
                                         {{ transaction.transaction_type|capfirst}}
                                       </a>
-                                      {% else %}
+                                      {% elif transaction.transaction_type == 'service_charge' %}
                                       <a class="btn btn-success withdrawal-button" href="">
-                                        Request
+                                        {{ transaction.transaction_type|capfirst}}
                                       </a>
                                       {% endif %}
                                     </div>
@@ -166,6 +165,7 @@
 
             </div>
             <!--Pagination-->
+            {% if transactions %}
             <div class="row">
                 <div class="col-md-12">
                     <div class="pagination-box">
@@ -173,28 +173,28 @@
                         
 
                         <ul class="pagination">
-                          {% if customer_transactions.has_previous %}
+                          {% if transactions.has_previous %}
                               <li><a href="?page=1"><i class="fa fa-angle-double-left"></i></a></li>
-                              <li><a href="?page={{ customer_transactions.previous_page_number }}">{{ customer_transactions.previous_page_number }}</a></li>
+                              <li><a href="?page={{ transactions.previous_page_number }}">{{ transactions.previous_page_number }}</a></li>
                           {% endif %}
                           
-                          <li class="active"><a href="?page={{ customer_transactions.number }}">{{ customer_transactions.number }}</a></li>
+                          <li class="active"><a href="?page={{ transactions.number }}">{{ transactions.number }}</a></li>
                           
-                          {% if customer_transactions.has_next %}
-                              <li><a href="?page={{ customer_transactions.next_page_number }}">{{ customer_transactions.next_page_number }}</a></li>
-                              <li><a href="?page={{ customer_transactions.paginator.num_pages }}"><i class="fa fa-angle-double-right"></i></a></li>
+                          {% if transactions.has_next %}
+                              <li><a href="?page={{ transactions.next_page_number }}">{{ transactions.next_page_number }}</a></li>
+                              <li><a href="?page={{ transactions.paginator.num_pages }}"><i class="fa fa-angle-double-right"></i></a></li>
                           {% endif %}
                       </ul>
                       
 
                      
-
+ 
 
                       
                     </div>
                 </div>
             </div>
-
+            {% endif %}
         </div>
         
         {% endif %}

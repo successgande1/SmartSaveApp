@@ -16,4 +16,7 @@ urlpatterns = [
     path('withdrawal/list/', views.withdrawal_list, name = 'withdrawal-list'),
     path('process-service-charge/', views.process_service_charge, name='process_service_charge'),
     path('charged-customers/list/', views.list_charged_customers, name='charged_customers_list'), 
+    path('transaction/report/', views.report_types_view, name='transaction-report'),
+    path('transaction/user-report/', views.user_transaction_report_view, name='user-transaction-report'),
+    path('admin-report/', views.generate_admin_report, name='admin-report'),
 ]

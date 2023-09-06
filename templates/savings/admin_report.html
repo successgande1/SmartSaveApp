@@ -1,0 +1,326 @@
+{% extends 'dashboard_base.html' %}
+
+{% block title %} {{page_title}} {% endblock %}
+
+{% load static %}
+
+{% load crispy_forms_tags %}
+
+{% load humanize %}
+
+{% block content %}
+
+
+
+
+<!-- Left sidebar menu start -->
+{% include 'partials/_LeftSideBar.html' %}
+<!-- Left sidebar menu end -->
+
+<main class="ttr-wrapper">
+    <div class="container-fluid">
+        <div class="db-breadcrumb">
+            <h4 class="breadcrumb-title" style="color: rgb(4, 149, 16);">Hello! {{user.profile.role|capfirst}} {{ user.username }} </h4>
+            <ul class="db-breadcrumb-list">
+                <li><a href="#"><i class="fa fa-home"></i>Home</a></li>
+                <li style="color: blue;">{{page_title}}</li>
+                {% if transactions %}
+                <li><span style="color: red; font-size:1rem; font-family:sans-serif;">Total Amount: N{{total_amount|intcomma}} </span></li>
+                <li><a class="btn btn-success" style="display: block; color:white;"> {{transaction_count}} Transactions</a></li>
+                {% endif %}
+            </ul>
+        </div>	
+
+        <!--Check if User is login and is also a staff and a superuser-->
+        {% if user.is_authenticated and user.profile.is_active and user.profile.role == 'admin' or user.is_superuser %}
+        
+        
+        <!--Search Transaction Container Start-->
+        <div class="container">
+            <div class="row my-4">
+
+              <div class="col-md-12">
+                <div class="border bg-white p-3">
+                   
+                    <h4 class="text-center">Search Transaction</h4>
+                    <hr>
+                    <form method="POST">
+                      {% csrf_token %}
+    
+                      {{ form | crispy }}
+
+                     
+                      <!--Check Page Title and Allocate Submit Value-->
+                      
+                      <input class="btn btn-info btn-block" type="submit"  value="Search Transaction">
+                   
+                      
+    
+                    </form>
+                </div>
+              </div>
+
+            </div>
+          </div>
+          <!--Search Transaction Container End-->
+
+          <!--List Transaction Container Start-->
+        <div class="container">
+            <div class="row">
+                {% include 'partials/_alerts.html' %}
+        
+                <!-- admin_report.html -->
+                {% if customer_transactions %}
+
+                <div class="col-md-12" id="slip">
+                          
+                    <div class="card">
+                     
+                       
+                    
+                     <div class="card-header bg-white  text-center " style="text-align: center;">
+                       <div class="slip-logo-passport-contain">
+                           <div class="slip-logo">
+                               <img width="100" height="100" src="{% static 'dash_assets/images/Real-Logo.jpg' %}" alt="slip logo">
+                           </div>
+                   
+                           <div class="slip-head-container">
+                               <h1 class="slip-header">SUCCESSGANDE ICT RESOURCES LTD.</h1>
+                               <h2 class="slip-sub-header">#59 Ahmadu Bello Way, Gboko. Benue State</h2>
+                               <h4 class="slip-sub-header">www.successsolutions.com.ng, info@successsolutions.com.ng, 09164660944</h4>
+                               <h3 class="slip-sub-under">Administrative Report From: {{ start_date }} to {{ end_date }}</h3>
+                                
+                            </div>
+                   
+                       </div>
+                   </div>
+                   
+                   
+                        
+                        <div class="card-body">
+                         <div class="row">
+                             <div class="col-md-12">
+                              <span class="h4" style="color: green;">REPORT SUMMARY</span>
+                                           <hr>
+                               <div class="table-responsive">
+                                 <table class="table bg-white table-borderless">
+                                     <tbody>
+                                       
+                                       <tr>
+                                         <th scope="row" style="text-align: left;">Total No. of Customers:</th>
+                                         <td>{{ total_customers }}</td>
+                                       </tr>
+                                        
+                                       <tr>
+                                         <th scope="row" style="text-align: left;">Total Deposits Made:</th>
+                                         <td>N{{ total_deposits|intcomma }}</td>                                   
+                                       </tr>  
+                                       <tr>
+                                         <th scope="row" style="text-align: left;">Total Withdrawals Made:</th>
+                                         <td>N{{ total_withdrawals|intcomma }}</td>                                   
+                                       </tr>  
+                                       <tr>
+                                         <th scope="row" style="text-align: left;">Total Service Charges Collected:</th>
+                                         <td>N{{ total_service_charges|intcomma }}</td>                                   
+                                       </tr>   
+                                       
+                                       <tr>
+                                         <th scope="row" style="text-align: left;">Net Balance:</th>
+                                         <td>N{{ net_balance|intcomma }}</td>                                   
+                                       </tr>  
+                                             
+                                     </tbody>
+                                 </table>
+                               </div>
+                             
+                             </div>
+                               
+                             </div>
+
+                               <div class="card-body">
+                                   <div class="row">
+                                       <div class="col-md-12">
+                                           <span class="h4" style="color: green;">STAFF ACTIVITY REPORT</span>
+                                           <hr>
+                                           <!--STAFF REPORT TABLE STARTS HERE-->
+                                           <table class="table bg-white">
+                                            <thead class="bg-info text-white">
+                                              <tr>
+                                                <th scope="col">#</th>
+                                                <th scope="col" style="color: white;">Staff Name</th>
+                                              
+                                                <th scope="col" style="color: white;" nowrap>Staff Role</th>
+              
+                                                <th scope="col" style="color: white;" nowrap>Staff Username</th>
+              
+                                                <th scope="col" style="color: white;" nowrap>Added Deposit</th>
+                                                
+                                                <th scope="col" style="color: white;" nowrap>No. of Customers</th>
+                                                
+                                               
+                                              </tr>
+                                            </thead>
+                                            <tbody>
+                                              
+                            
+                                              {% for user_deposit in user_deposits  %}
+                                              <tr>
+                                                <th scope="row">{{ forloop.counter }}</th>
+              
+                                                <td wrap>{{ user_deposit.full_name }}</td>
+                                               
+                                                <td>{{ user_deposit.role }}</td>
+              
+                                                <td>{{  user_deposit.username }}</td>
+              
+                                                <td wrap>N{{ user_deposit.total_deposits|intcomma }}</td>
+                                                
+                                                <!-- Add the total customers added by each staff -->
+                                                <td>{{ user_deposit.total_customers }}</td>
+                                              </tr>
+                                              {% empty %}
+                                                <tr>
+                                                    <td colspan="5">No Deposits found in this Date Dange.</td>
+                                                </tr>  
+                                              {% endfor %}  
+                                              
+                                                
+                                               
+                                            </tbody>
+                                           </table>
+
+
+                                           <!--STAFF REPORT TABLE ENDS HERE-->
+                                             
+                                       </div>
+                                       
+                                   </div>
+
+                                   <div class="row">
+                                     <div class="col-md-12">
+                                         <span class="h4" style="color: green;">STAFF TRANSACTION REPORT</span>
+                                         <hr>
+                                         <!--STAFF USERS TRANSACTIONS REPORT TABLE STARTS HERE-->
+                                         <table class="table bg-white">
+                                            <thead class="bg-info text-white">
+                                              <tr>
+                                                <th scope="col">#</th>
+                                                
+                                              
+                                                <th scope="col" style="color: white;" nowrap>Username</th>
+              
+                                                <th scope="col" style="color: white;" nowrap>Transaction Type</th>
+              
+                                                <th scope="col" style="color: white;" nowrap>Amount</th>
+                                                
+                                                <th scope="col" style="color: white;" nowrap>Transaction Date</th>
+                                                
+                                               
+                                              </tr>
+                                            </thead>
+                                            <tbody>
+                                              
+                            
+                                              {% for activity in cashier_manager_activity   %}
+                                              <tr>
+                                                <th scope="row">{{ forloop.counter }}</th>
+              
+                                                <td wrap>{{ activity.added_by.username   }}</td>
+                                               
+                                                <td>{{ activity.transaction_type|capfirst  }}</td>
+              
+                                                <td>N{{  activity.amount|intcomma  }}</td>
+              
+                                                <td>{{ activity.transaction_date  }}</td>
+                                              </tr>
+                                              {% empty %}
+                                                <tr>
+                                                    <td colspan="5">No Activity found in this Date Range.</td>
+                                                </tr>  
+                                              {% endfor %}  
+                                            </tbody>
+                                           </table>
+                                         <!--STAFF USERS TRANSACTIONS REPORT TABLE ENDS HERE-->                                           
+                                     </div>
+                                     
+                                 </div>
+                                 
+                                   <div class="row">
+                                     <div class="col-md-12">
+                                         <span class="h4" style="color: red;">Note:</span>
+                                         <hr>
+                                         <table class="table bg-white table-borderless">
+                                             <tbody>
+     
+                                             
+                                               
+                                               <div class="form-row">
+
+                                                 <div class="form-group col-md-12 mb-0">
+                                                   <p>
+                                                  <b style="color: rgb(143, 106, 14);">{{user.username}} </b> You may wish to print this Report sheet.
+                                                     
+                                                   </p>
+                                                   
+                                                   
+
+                                                 </div>
+                     
+                                                 
+                                               </div>
+
+                                               <script type="text/javascript">
+                                                 function printSlip() {
+                                                   var printContent = document.getElementById("slip").innerHTML;
+                                                   var printWindow = window.open('', '_blank');
+                                               
+                                                   printWindow.document.open();
+                                                   printWindow.document.write('<html><head><link rel="stylesheet" href="{% static 'dash_assets/css/print-styles.css' %}" media="print"></head><body>' + printContent + '</body></html>');
+                                                   printWindow.document.close();
+                                               
+                                                   printWindow.onload = function() {
+                                                       printWindow.print();
+                                                       printWindow.close();
+                                                   };
+                                               }
+                                                
+                                             </script>
+                                             
+                                               
+                                               <th>
+                                               <form >
+                                               <a class="btn btn-success" href="javascript:void(0);" onclick="printSlip()">Print Slip</a>
+                                             </form>
+                                           </th>
+                                             
+                                               
+                                             </tbody>
+                                         </table>  
+                                         
+                                     </div>
+                                   
+                                   </div>
+                               </div>
+                           
+                          
+
+                        </div>
+                    </div>
+                 </div>
+
+
+                {% endif %}
+
+
+
+            </div>
+            
+        </div>
+        
+        {% endif %}
+
+        
+    </div>
+</main>
+
+{% endblock %}
