@@ -19,4 +19,5 @@ urlpatterns = [
     path('transaction/report/', views.report_types_view, name='transaction-report'),
     path('transaction/user-report/', views.user_transaction_report_view, name='user-transaction-report'),
     path('admin-report/', views.generate_admin_report, name='admin-report'),
+    path('manager-cashier-report/', views.staff_transaction_report_view, name='manager-cashier-report'),
 ]

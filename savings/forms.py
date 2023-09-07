@@ -173,12 +173,22 @@ class UserTransactionReportForm(forms.Form):
 class DateRangeForm(forms.Form):
     start_date = forms.DateField(
         label='Start Date',
-        widget=forms.DateInput(attrs={'type': 'date'}),
-        required=True
-    )
+        widget=forms.DateInput(attrs={'type': 'date'}), initial=timezone.now().date())
+    end_date = forms.DateField(
+        label='End Date',
+        widget=forms.DateInput(attrs={'type': 'date'}), initial=timezone.now().date())
+
+class StaffTransactionDateRangeForm(forms.Form):
+    TRANSACTION_CHOICES = [
+        ('deposit', 'Deposit'),
+        
+    ]
+
+    transaction_type = forms.ChoiceField(choices=TRANSACTION_CHOICES, required=True)
+    start_date = forms.DateField(
+        label='Start Date',
+        widget=forms.DateInput(attrs={'type': 'date'}), initial=timezone.now().date())
     
     end_date = forms.DateField(
         label='End Date',
-        widget=forms.DateInput(attrs={'type': 'date'}),
-        required=True
-    )
+        widget=forms.DateInput(attrs={'type': 'date'}), initial=timezone.now().date())

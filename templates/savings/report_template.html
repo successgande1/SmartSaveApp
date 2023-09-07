@@ -32,7 +32,7 @@
         </div>	
 
         <!--Check if User is login and is also a staff and a superuser-->
-        {% if user.is_authenticated and user.profile.is_active and user.profile.role == 'admin' or user.is_superuser %}
+        {% if user.is_authenticated and user.profile.is_active and user.profile.role == 'admin' or user.is_superuser or user.profile.role == 'cashier'  %}
         
         
         <!--Search Transaction Container Start-->
@@ -93,8 +93,6 @@
                                   
                                   <th scope="col" style="color: white;" >Amount.</th>
                                  
-
-                                  <th scope="col" style="color: white;" >Bal.</th>
                                   
                                   <th scope="col" style="color: white;" nowrap>Type</th>
 
@@ -124,8 +122,7 @@
                                   <td nowrap>{{ transaction.transaction_date|naturaltime }}</td>
 
                                   <td style="color: red;">N{{ transaction.amount|intcomma }}</td>
-
-                                  <td>N{{ transaction.customer.account_balance|intcomma }}</td>
+                                  
                                   
                                   <td>
                                       
