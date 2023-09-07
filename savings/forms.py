@@ -193,3 +193,18 @@ class StaffTransactionDateRangeForm(forms.Form): #Staff User Deposit Date Range 
         label='End Date',
         widget=forms.DateInput(attrs={'type': 'date'}), initial=timezone.now().date())
     
+class CustomerTransactionDateRangeForm(forms.Form): #Customer User Deposit and Withdrawal Date Range Transaction Report Form
+    TRANSACTION_CHOICES = [
+        ('deposit', 'Deposit'),
+        ('withdraw', 'Withdraw'),
+        ('service_charge', 'Service Charge'),
+    ]
+
+    transaction_type = forms.ChoiceField(choices=TRANSACTION_CHOICES, required=True)
+    start_date = forms.DateField(
+        label='Start Date',
+        widget=forms.DateInput(attrs={'type': 'date'}), initial=timezone.now().date())
+    
+    end_date = forms.DateField(
+        label='End Date',
+        widget=forms.DateInput(attrs={'type': 'date'}), initial=timezone.now().date())

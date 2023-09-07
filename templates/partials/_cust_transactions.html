@@ -26,11 +26,11 @@
                                         <span class="orders-info" style="color:orange;"> {{deposit.transaction_date |naturaltime }} </span>
                                     </span>
                                     <span class="orders-title">
-                                        <a href="#" class="orders-title-name" style="color:green; font-size:0.8rem;">-- |N{{deposit.amount|intcomma}} </a>
+                                        <a href="#" class="orders-title-name" style="color:green; font-size:1rem;">-- |N{{deposit.amount|intcomma}} </a>
                                         <span class="orders-info"> - |By: {{deposit.added_by }} </span>
                                     </span>
                                     <span class="orders-title">
-                                        <a href="#" class="orders-title-name" style="font-size: 0.7rem;"> | {{deposit.customer.customer.profile.full_name}} </a>
+                                        <a href="#" class="orders-title-name" style="font-size: 1rem;"> | {{deposit.customer.customer.profile.full_name}} </a>
                                         <span class="orders-info" style="color:red;"> - |Acct. No: {{deposit.customer.account_number }} </span>
                                     </span>
                                     <span class="orders-btn">

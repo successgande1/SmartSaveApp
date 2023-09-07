@@ -32,7 +32,7 @@
         </div>	
 
         <!--Check if User is login and is also a staff and a superuser-->
-        {% if user.is_authenticated and user.profile.is_active and user.profile.role == 'admin' or user.is_superuser or user.profile.role == 'cashier'  %}
+        
         
         
         <!--Search Transaction Container Start-->
@@ -73,7 +73,7 @@
                 <!--Customer List-->
                 <div class="col-lg-12 m-b30">
                     <div class="table-responsive mb-8">
-                        
+                      {% if transactions %}
                           <table class="table bg-white">
                               <thead class="bg-info text-white">
                                 <tr>
@@ -103,7 +103,7 @@
                               <tbody> 
 <!--###########################################################################################################################-->
                                 <!--Transaction List Starts Here-->
-                                
+                               
 
                                 {% for transaction in transactions %}
                                 <tr>
@@ -147,6 +147,8 @@
                                   
                                 </tr>
                                 {% endfor %} 
+
+                                
                                 <!--TRANSACTION LIST END HERE-->
 <!--##############################################################################################################-->
                                 
@@ -154,6 +156,11 @@
                                 
                               </tbody>
                           </table>
+                          {% else %}
+
+                          <span style="text-align:center; color:red; font-size:1rem;">No Transaction Found</span>
+
+                          {% endif %}
                             
                        
                           </div>
@@ -194,7 +201,7 @@
             {% endif %}
         </div>
         
-        {% endif %}
+        
 
         
     </div>

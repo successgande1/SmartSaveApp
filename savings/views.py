@@ -960,7 +960,7 @@ def staff_transaction_report_view(request):
             # Filter transactions by user, type, and date range
             transactions = Transaction.objects.filter(
                 transaction_type=transaction_type,
-                transaction_date__date__gte=start_date,
+                transaction_date__date__gte=start_date, 
                 transaction_date__date__lte=end_date,
                 added_by = request.user
             )
@@ -987,5 +987,56 @@ def staff_transaction_report_view(request):
         form = StaffTransactionDateRangeForm()
 
     context = {'form': form, 'page_title': 'User Transaction Report'}
+    return render(request, 'savings/report_template.html', context)
+
+#CUSTOMER Transaction Date Range Report
+@login_required(login_url='accounts-login')
+def customer_transaction_report_view(request):
+    try:
+        customer = Customer.objects.get(customer=request.user)
+    except Customer.DoesNotExist:
+        # Handle the case where the logged-in user doesn't have a corresponding Customer instance
+        customer = None
+        return redirect('accounts-login')
+
+    if customer:
+        
+        if request.method == 'POST':
+            form = CustomerTransactionDateRangeForm(request.POST)
+            if form.is_valid():
+                transaction_type = form.cleaned_data['transaction_type']
+                start_date = form.cleaned_data['start_date']
+                end_date = form.cleaned_data['end_date']
+                
+                # Filter transactions by user, type, and date range
+                transactions = Transaction.objects.filter(
+                    transaction_type=transaction_type,
+                    transaction_date__date__gte=start_date, 
+                    transaction_date__date__lte=end_date,
+                    customer = customer
+                )
+                
+                # Calculate the total amount for the selected type
+                total_amount = transactions.aggregate(total_amount=Sum('amount'))['total_amount']
+                # Count the number of transactions
+                transaction_count = transactions.count()
+
+                paginator = Paginator(transactions, 5)  # Show 5 Transactions per page
+                page_number = request.GET.get('page')
+                page_obj = paginator.get_page(page_number)
+
+                context = {
+                    'form': form,
+                    'transaction_count': transaction_count,
+                    'page_title': 'Customer Transaction Report',
+                    'transactions': page_obj,
+                    'total_amount': total_amount or 0,
+                }
+                
+                return render(request, 'savings/report_template.html', context)
+        else:
+            form = CustomerTransactionDateRangeForm()
+
+        context = {'form': form, 'page_title': 'User Transaction Report'}
     return render(request, 'savings/report_template.html', context)
 
