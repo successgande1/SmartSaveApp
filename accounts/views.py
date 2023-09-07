@@ -1,5 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect,  get_object_or_404
+from django.contrib.auth import authenticate, update_session_auth_hash
 from django.contrib.auth import logout
 from django.core.paginator import Paginator
 from django.contrib import messages 
@@ -377,3 +378,37 @@ def enable_user(request, pk):
         user_to_enable.save()
         messages.success(request, f'{user_to_enable.user.username} Enabled Successfully.')
         return redirect('accounts-staff-list')
+    
+#Change user password view
+@login_required(login_url='accounts-login')
+def change_password(request):
+    if request.method == 'POST':
+        form = PasswordChangeForm(request.POST)
+        if form.is_valid():
+            user = authenticate(username=request.user.username, password=form.cleaned_data['old_password'])
+            if user is not None:
+                user.set_password(form.cleaned_data['new_password'])
+                user.save()
+                update_session_auth_hash(request, user)  # Update session to prevent logout
+                messages.success(request, 'Your Password Changed Successfully.')
+                return redirect('accounts-password-change-done')  # Redirect to password change success page
+            else:
+                form.add_error('old_password', 'Incorrect old password')
+                messages.warning(request, 'Incorrect old Password.')
+    else:
+        form = PasswordChangeForm()
+
+    context = {
+        'form': form,
+        'page_title': 'Change Password',
+        }
+    return render(request, 'accounts/password_change.html', context)
+
+#Change user password successfully view
+@login_required(login_url='accounts-login')
+def password_change_done(request):
+
+    context = {
+        'page_title':'Password Changed',
+    }
+    return render(request, 'accounts/password_change_done.html', context)

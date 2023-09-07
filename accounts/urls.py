@@ -11,5 +11,7 @@ urlpatterns = [
     path('staff/list/', views.staff_list, name = 'accounts-staff-list'),
     path('disable_user/<int:pk>/', views.disable_user, name = 'accounts-disable-user'),
     path('enable_user/<int:pk>/', views.enable_user, name = 'accounts-enable-user'),
+    path('change-password/', views.change_password, name='accounts-change-password'),
+    path('password-change-done/', views.password_change_done, name='accounts-password-change-done'),
     path('logout/', auth_view.LogoutView.as_view(template_name='accounts/logout.html'), name = 'accounts-logout'),
 ]

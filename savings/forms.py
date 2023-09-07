@@ -151,7 +151,7 @@ class ReportForm(forms.Form): #Deposit, Withdrawal and Service Charge Search For
     start_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}), initial=timezone.now().date())
     end_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}), initial=timezone.now().date())
 
-class UserTransactionReportForm(forms.Form):
+class UserTransactionReportForm(forms.Form): #Admin User Date Range Transaction Form for All Users
     TRANSACTION_CHOICES = [
         ('deposit', 'Deposit'),
         ('withdraw', 'Withdraw'),
@@ -170,7 +170,7 @@ class UserTransactionReportForm(forms.Form):
     end_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}), initial=timezone.now().date())
 
 
-class DateRangeForm(forms.Form):
+class DateRangeForm(forms.Form):  #Admin User Date Range Report Form
     start_date = forms.DateField(
         label='Start Date',
         widget=forms.DateInput(attrs={'type': 'date'}), initial=timezone.now().date())
@@ -178,7 +178,7 @@ class DateRangeForm(forms.Form):
         label='End Date',
         widget=forms.DateInput(attrs={'type': 'date'}), initial=timezone.now().date())
 
-class StaffTransactionDateRangeForm(forms.Form):
+class StaffTransactionDateRangeForm(forms.Form): #Staff User Deposit Date Range Transaction Report Form
     TRANSACTION_CHOICES = [
         ('deposit', 'Deposit'),
         
@@ -192,3 +192,4 @@ class StaffTransactionDateRangeForm(forms.Form):
     end_date = forms.DateField(
         label='End Date',
         widget=forms.DateInput(attrs={'type': 'date'}), initial=timezone.now().date())
+    

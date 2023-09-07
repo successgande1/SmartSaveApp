@@ -1,6 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import user_passes_test
 from django.shortcuts import render, redirect,  get_object_or_404
+
 from.models import Customer, Transaction, WithdrawalRequest, ServiceCharge
 from django.contrib.auth import logout
 from django.core.paginator import Paginator
@@ -987,3 +988,4 @@ def staff_transaction_report_view(request):
 
     context = {'form': form, 'page_title': 'User Transaction Report'}
     return render(request, 'savings/report_template.html', context)
+
