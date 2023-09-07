@@ -19,10 +19,12 @@
     <div class="container-fluid">
         <div class="db-breadcrumb">
             <h4 class="breadcrumb-title" style="color: rgb(4, 149, 16);">Hello! 
-                {% if user.profile.role == ''  %}
+                {% if user.superuser  %}
                 Super admin
-                {% else  %}
+                {% elif user.profile.role  %}
                 {{user.profile.role |capfirst}} 
+                {% else %}
+                Customer
                 {% endif %}
                 - {{ user.username }} </h4>
             <ul class="db-breadcrumb-list">

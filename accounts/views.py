@@ -258,10 +258,10 @@ def index(request):
         
         return render(request, 'accounts/index.html', context)
     
-    elif logged_user.is_authenticated and not hasattr(logged_user, 'profile'):
-        date_today = datetime.datetime.now().date
+    elif logged_user.is_authenticated and not logged_user.profile.role in ['admin', 'manager', 'cashier']:
+        
         context = {
-            'date_today':date_today,
+            
             'page_title':"Dashboard",
         }
         return render(request, 'accounts/index.html', context)

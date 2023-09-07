@@ -169,16 +169,40 @@
 
                 <li>
                     <a href="" class="ttr-material-button">
-                        <span class="ttr-icon"><i class="ti-book"></i></span>
-                        <span class="ttr-label">My Deposits</span></a>
+                        <span class="ttr-icon"><i class="ti-comments"></i></span>
+                        <span class="ttr-label">My Request</span></a>
                 </li>
 
 
                 <li>
-                    <a href="" class="ttr-material-button">
-                        <span class="ttr-icon"><i class="ti-book"></i></span>
-                        <span class="ttr-label">My Withdrawals</span>
+                    <a href="#" class="ttr-material-button">
+                        <span class="ttr-icon"><i class="fa fa-book"></i></span>
+                        <span class="ttr-label">Reports</span>
+                        <span class="ttr-arrow-icon"><i class="fa fa-angle-down"></i></span>
                     </a>
+                    <ul>
+                      
+                        <li>
+                            <a href=" " class="ttr-material-button"><span class="ttr-label">My Transactions</span></a>
+                        </li>
+                        <li>
+                            <a href=" " class="ttr-material-button"><span class="ttr-label">Paid Charges</span></a>
+                        </li>
+
+                    </ul>
+                    
+                </li>
+                <li>
+                    <a href="{% url 'accounts-change-password' %}" class="ttr-material-button">
+                        <span class="ttr-icon"><i class="ti-layout-accordion-list"></i></span>
+                        <span class="ttr-label">Change Password</span>
+                    </a>
+                </li>
+             
+                <li>
+                    <a href=" {% url 'accounts-logout' %} " class="ttr-material-button">
+                        <span class="ttr-icon"><i class="fa fa-smile-o"></i></span>
+                        <span class="ttr-label">User Logout</span></a>
                 </li>
                 
                 {% endif %}
