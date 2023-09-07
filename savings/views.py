@@ -435,6 +435,7 @@ def withdrawal_request_list(request):
 
         #Filter all Withdrawal request done by logged in user FOR THE MONTH
         logged_user_withdrawal_request = WithdrawalRequest.objects.filter(
+                is_approved = False,
                 request_date__year=current_year,
                 request_date__month=current_month,
                 #request_date__day=current_day,
