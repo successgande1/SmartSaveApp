@@ -117,7 +117,7 @@ class Transaction(models.Model):
             transaction_date__year=year,
             transaction_date__month=month,
             customer = customer
-        ).aggregate(total_withdrawals=Sum('amount'))['total_withdrawals'] or 0.00
+        ).aggregate(total_deposits=Sum('amount'))['total_deposits'] or 0.00
     
     # Method for calculating Total Withdrawn by CUSTOMER IN THE MONTH
     @classmethod

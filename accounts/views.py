@@ -7,6 +7,7 @@ from django.contrib import messages
 import json
 from savings.models import Customer, Transaction, WithdrawalRequest
 from django.db.models import Count, Sum
+from decimal import Decimal
 import datetime
 from savings.forms import *
 from django.db.models import Q, F
@@ -259,10 +260,107 @@ def index(request):
         return render(request, 'accounts/index.html', context)
     
     elif logged_user.is_authenticated and not logged_user.profile.role in ['admin', 'manager', 'cashier']:
+        current_date = timezone.now()
+        current_day = current_date.day
+        current_month = current_date.month
+        current_year = current_date.year
+
+        # Retrieve the Customer instance for the logged-in user
+    try:
+        customer = Customer.objects.get(customer=request.user)
+    except Customer.DoesNotExist:
+        # Handle the case where the logged-in user doesn't have a corresponding Customer instance
+        customer = None
+        return redirect('accounts-login')
+
+    if customer:
+        # CALCULATE AMOUNT WITHDRAWN BY LOGGED IN CUSTOMER THIS MONTH
+        withdrawals = Transaction.objects.filter(
+            transaction_type='withdraw',
+            transaction_date__year=current_year,
+            transaction_date__month=current_month,
+            customer=customer
+        )
+
+        # CALCULATE AMOUNT DEPOSITED BY LOGGED IN CUSTOMER IN CURRENT MONTH
+        deposits = Transaction.objects.filter(
+            transaction_type='deposit',
+            transaction_date__year=current_year,
+            transaction_date__month=current_month,
+            customer=customer
+        )
+
+        # CALCULATE AMOUNT WITHDRAWN BY LOGGED IN CUSTOMER THIS MONTH
+        withdrawals = Transaction.objects.filter(
+                transaction_type='withdraw',
+                transaction_date__year=current_year,
+                transaction_date__month=current_month,
+                customer=customer
+            )
+
+        # CALCULATE AMOUNT DEPOSITED BY LOGGED IN CUSTOMER IN CURRENT MONTH
+        count_deposits = Transaction.objects.filter(
+                transaction_type='deposit',
+                transaction_date__year=current_year,
+                transaction_date__month=current_month,
+                customer=customer
+            )
+        
+        # COUNT NUMBER OF WITHDRAWAL BY CUSTOMER IN CURRENT MONTH
+        count_withdrawals = Transaction.objects.filter(
+                transaction_type='withdraw',
+                transaction_date__year=current_year,
+                transaction_date__month=current_month,
+                customer=customer
+            ).count()
+
+        # Count Number of Customer Deposited today
+        count_deposits = Transaction.objects.filter(
+                transaction_type='deposit',
+                transaction_date__year=current_year,
+                transaction_date__month=current_month,
+                transaction_date__day=current_day,
+                customer=customer
+            ).count()
+        
+        #GET TOTAL DEPOSITED BY CUSTOMER IN CURRENT MONTH 
+        this_month_total_deposit = Transaction.get_customer_total_desposited_current_month(current_year,current_month,customer)
+        #GET TOTAL WITHDRAWAL BY CUSTOMER IN CURRENT MONTH
+        this_month_total_withdrawal = Transaction.get_customer_total_withdrawn_current_month(current_year,current_month,customer)
+
+        # Convert this_month_total_deposit and this_month_total_withdrawal to Decimal objects
+        this_month_total_deposit = Decimal(str(this_month_total_deposit))
+        this_month_total_withdrawal = Decimal(str(this_month_total_withdrawal))
+
+        # Define service_charge_amount with a default value
+        service_charge_amount = Decimal('0.00')
+
+        # Calculate the net savings for the current month
+        net_savings = this_month_total_deposit - this_month_total_withdrawal
+
+        # Deduct the current monthly service charge
+        try:
+            service_charge = ServiceCharge.objects.get(charged_customer=customer, charged_date__month=current_month)
+            service_charge_amount = Decimal(str(service_charge.charged_amount))
+            net_savings -= service_charge.charged_amount
+        except ServiceCharge.DoesNotExist:
+            # Handle the case where no service charge exists for the current month
+            pass
+
+        # Calculate the net savings for the current month
+        net_savings = this_month_total_deposit - this_month_total_withdrawal - service_charge_amount   
         
         context = {
             
             'page_title':"Dashboard",
+            'withdrawals':withdrawals,
+            'deposits':deposits,
+            'count_withdrawals':count_withdrawals,
+            'count_deposits':count_deposits,
+            'this_month_total_deposit':this_month_total_deposit,
+            'this_month_total_withdrawal':this_month_total_withdrawal,
+            'net_savings':net_savings,
+            'service_charge_amount':service_charge_amount,
         }
         return render(request, 'accounts/index.html', context)
          

@@ -1,0 +1,113 @@
+{% load humanize %}
+
+<div class="row">
+    <!--########### CUSTOMER RECENT DEPOSITS -->
+    <div class="col-lg-6 m-b30">
+        <div class="widget-box">
+            <div class="wc-title">
+                
+                <h4>My Recent Deposits</h4>
+                
+            </div>
+            <div class="widget-inner">
+                <div class="orders-list">
+                    {% if deposits %}
+                    <ul>
+                       
+                        {% for deposit in deposits %}
+                         
+                                <li>
+                                    <span class="orders-title">
+                                        <a href="#" class="orders-title-name">
+                                            
+                                            {{deposit.transaction_type|capfirst}} 
+                                            
+                                        </a>
+                                        <span class="orders-info" style="color:orange;"> {{deposit.transaction_date |naturaltime }} </span>
+                                    </span>
+                                    <span class="orders-title">
+                                        <a href="#" class="orders-title-name" style="color:green; font-size:0.8rem;">-- |N{{deposit.amount|intcomma}} </a>
+                                        <span class="orders-info"> - |By: {{deposit.added_by }} </span>
+                                    </span>
+                                    <span class="orders-title">
+                                        <a href="#" class="orders-title-name" style="font-size: 0.7rem;"> | {{deposit.customer.customer.profile.full_name}} </a>
+                                        <span class="orders-info" style="color:red;"> - |Acct. No: {{deposit.customer.account_number }} </span>
+                                    </span>
+                                    <span class="orders-btn">
+                                        {{transaction.transaction_type }}
+                                        
+                                    </span>
+                                </li>
+
+                        {% endfor %}
+
+                        
+                       
+                        
+                        
+                    </ul>
+                    {% else %}
+                    <span style="color:red; text-align:center;">You have Not Deposited Yet</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--########### CUSTOMER RECENT Withdrawals -->
+    <div class="col-lg-6 m-b30">
+        <div class="widget-box">
+            <div class="wc-title">
+                
+                <h4>My Recent Withdrawals</h4>
+                
+            </div>
+            <div class="widget-inner">
+                <div class="orders-list">
+                    {% if withdrawals %}
+                    <ul>
+                       
+                        {% for withdrawal in withdrawals %}
+                         
+                                <li>
+                                    <span class="orders-title">
+                                        <a href="#" class="orders-title-name">
+                                            
+                                            {{withdrawal.transaction_type|capfirst}} 
+                                            
+                                        </a>
+                                        <span class="orders-info" style="color:orange;"> {{withdrawal.transaction_date |naturaltime }} </span>
+                                    </span>
+                                    <span class="orders-title">
+                                        <a href="#" class="orders-title-name" style="color:green; font-size:0.8rem;">-- |N{{withdrawal.amount|intcomma}} </a>
+                                        <span class="orders-info"> - |By: {{withdrawal.added_by }} </span>
+                                    </span>
+                                    <span class="orders-title">
+                                        <a href="#" class="orders-title-name" style="font-size: 0.7rem;"> | {{withdrawal.customer.customer.profile.full_name}} </a>
+                                        <span class="orders-info" style="color:red;"> - |Acct. No: {{withdrawal.customer.account_number }} </span>
+                                    </span>
+                                    <span class="orders-btn">
+                                        {{withdrawal.transaction_type }}
+                                        
+                                    </span>
+                                </li>
+
+                        {% endfor %}
+
+                        
+                       
+                        
+                        
+                    </ul>
+                    {% else %}
+                    <span style="color:red; text-align:center;">You Have No Withdrawal Yet</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    
+ 
+    
+</div>
