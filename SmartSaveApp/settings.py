@@ -44,11 +44,13 @@ INSTALLED_APPS = [
     'django_filters',
     'imagekit',
     'django.contrib.humanize',
+    'debug_toolbar',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -155,3 +157,9 @@ MESSAGE_TAGS = {
 LOGIN_REDIRECT_URL = 'accounts-dashboard'
 
 LOGIN_URL = 'accounts-login'
+
+INTERNAL_IPS = [
+    # ...
+    '127.0.0.1',  # Add your IP addresses here as needed
+    # ...
+]

@@ -174,13 +174,13 @@ class UserTransactionReportForm(forms.Form):
 
 
 
-class DateRangeForm(forms.Form):  #Admin User Date Range Report Form
-    start_date = forms.DateField(
-        label='Start Date',
-        widget=forms.DateInput(attrs={'type': 'date'}), initial=timezone.now().date())
-    end_date = forms.DateField(
-        label='End Date',
-        widget=forms.DateInput(attrs={'type': 'date'}), initial=timezone.now().date())
+# class AdminDateRangeForm(forms.Form):  #Admin User Date Range Report Form
+#     start_date = forms.DateField(
+#         label='Start Date',
+#         widget=forms.DateInput(attrs={'type': 'date'}), input_formats=['%Y-%m-%d'], initial=timezone.now().date())
+#     end_date = forms.DateField(
+#         label='End Date',
+#         widget=forms.DateInput(attrs={'type': 'date'}), input_formats=['%Y-%m-%d'], initial=timezone.now().date())
 
 class StaffTransactionDateRangeForm(forms.Form): #Staff User Deposit Date Range Transaction Report Form
     TRANSACTION_CHOICES = [
@@ -205,6 +205,16 @@ class CustomerTransactionDateRangeForm(forms.Form): #Customer User Deposit and W
     ]
 
     transaction_type = forms.ChoiceField(choices=TRANSACTION_CHOICES, required=True)
+    start_date = forms.DateField(
+        label='Start Date',
+        widget=forms.DateInput(attrs={'type': 'date'}), initial=timezone.now().date())
+    
+    end_date = forms.DateField(
+        label='End Date',
+        widget=forms.DateInput(attrs={'type': 'date'}), initial=timezone.now().date())
+    
+class StaffActivityDateRangeForm(forms.Form): #Staff Activity Form
+    
     start_date = forms.DateField(
         label='Start Date',
         widget=forms.DateInput(attrs={'type': 'date'}), initial=timezone.now().date())

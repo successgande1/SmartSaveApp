@@ -36,15 +36,16 @@
         
         
         <!--Search Transaction Container Start-->
+        {% if not user_deposits %}
         <div class="container">
             <div class="row my-4">
-
+              
               <div class="col-md-12">
                 <div class="border bg-white p-3">
                    
-                    <h4 class="text-center">Search Transaction</h4>
+                    <h4 class="text-center">Generate Date Range Report</h4>
                     <hr>
-                    <form method="POST">
+                    <form method="POST" action=" {% url 'admin-report' %} ">
                       {% csrf_token %}
     
                       {{ form | crispy }}
@@ -52,7 +53,7 @@
                      
                       <!--Check Page Title and Allocate Submit Value-->
                       
-                      <input class="btn btn-info btn-block" type="submit"  value="Search Transaction">
+                      <input class="btn btn-info btn-block" type="submit"  value="Generate Report">
                    
                       
     
@@ -61,7 +62,8 @@
               </div>
 
             </div>
-          </div>
+        </div>
+        {% endif %}
           <!--Search Transaction Container End-->
 
           <!--List Transaction Container Start-->
@@ -70,8 +72,8 @@
                 {% include 'partials/_alerts.html' %}
         
                 <!-- admin_report.html -->
-                {% if customer_transactions %}
-
+                
+                {% if  user_deposits %}
                 <div class="col-md-12" id="slip">
                           
                     <div class="card">
@@ -307,9 +309,8 @@
                         </div>
                     </div>
                  </div>
-
-
-                {% endif %}
+                 {% endif %}
+                 
 
 
 

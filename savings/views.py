@@ -13,7 +13,7 @@ from django.http import JsonResponse
 from datetime import timedelta
 from django.utils import timezone
 import calendar
-from django.db.models import Q, F, Subquery, OuterRef
+from django.db.models import Q, F, Subquery, OuterRef, Value
 from django.db.models import OuterRef
 from django.db.models.functions import Coalesce
 
@@ -858,76 +858,116 @@ def user_transaction_report_view(request):
 @user_passes_test(lambda u: u.is_superuser or u.profile.role == 'admin', login_url='accounts-login')
 def generate_admin_report(request):
     if request.method == 'POST':
-        form = DateRangeForm(request.POST)
+        form = StaffActivityDateRangeForm(request.POST or None)
+
         if form.is_valid():
             start_date = form.cleaned_data['start_date']
-            end_date = form.cleaned_data['end_date']
+            end_date = form.cleaned_data['end_date'] + timedelta(days=1)  # Include end date
 
             # Calculate summary information
             total_customers = Customer.objects.count()
-            total_deposits = Transaction.objects.filter(
-                transaction_type='deposit',
-                transaction_date__range=(start_date, end_date)
-            ).aggregate(total_amount=Sum('amount'))['total_amount'] or 0
-            total_withdrawals = Transaction.objects.filter(
-                transaction_type='withdraw',
-                transaction_date__range=(start_date, end_date)
-            ).aggregate(total_amount=Sum('amount'))['total_amount'] or 0
+
+            # Calculate total deposits, total withdrawals, and net balance in a single query
+            transaction_summary = (
+                Transaction.objects
+                .filter(
+                    transaction_date__date__gte=start_date,
+                    transaction_date__date__lt=end_date
+                )
+                .values('transaction_type')
+                .annotate(total_amount=Sum('amount'))
+            )
+
+            total_deposits = next((item['total_amount'] for item in transaction_summary if item['transaction_type'] == 'deposit'), 0)
+            total_withdrawals = next((item['total_amount'] for item in transaction_summary if item['transaction_type'] == 'withdraw'), 0)
+
             total_service_charges = ServiceCharge.objects.filter(
                 charged_date__range=(start_date, end_date)
             ).aggregate(total_amount=Sum('charged_amount'))['total_amount'] or 0
+
             net_balance = total_deposits - total_withdrawals - total_service_charges
 
             # Get customer transactions
-            customer_transactions = Transaction.objects.filter(
-                transaction_date__range=(start_date, end_date)
-            ).order_by('-transaction_date')
+            customer_transactions = (
+                Transaction.objects
+                .filter(
+                    transaction_date__date__gte=start_date,
+                    transaction_date__date__lt=end_date
+                )
+                .order_by('-transaction_date')
+            )
 
             # Get withdrawal requests
-            withdrawal_requests = WithdrawalRequest.objects.filter(
-                request_date__range=(start_date, end_date)
-            ).order_by('-request_date')
+            withdrawal_requests = (
+                WithdrawalRequest.objects
+                .filter(
+                    request_date__date__gte=start_date,
+                    request_date__date__lt=end_date
+                )
+                .order_by('-request_date')
+            )
 
             # Get cashier and manager activity
-            cashier_manager_activity = Transaction.objects.filter(
-                added_by__profile__role__in=['cashier', 'manager'],
-                transaction_date__range=(start_date, end_date)
-            ).order_by('-transaction_date')
+            cashier_manager_activity = (
+                Transaction.objects
+                .filter(
+                    added_by__profile__role__in=['cashier', 'manager'],
+                    transaction_date__date__gte=start_date,
+                    transaction_date__date__lt=end_date
+                )
+                .order_by('-transaction_date')
+            )
 
             # Get new customers added within the date range
             new_customers = Customer.objects.filter(
-                created_date__range=(start_date, end_date)
+                created_date__date__gte=start_date,
+                created_date__date__lt=end_date
             ).count()
 
             # Calculate total deposits added by each admin, cashier, or manager within the date range
-            user_deposits = Transaction.objects.filter(
-            transaction_type='deposit',
-            transaction_date__range=(start_date, end_date),
-            added_by__profile__role__in=['admin', 'cashier', 'manager']
-            ).annotate(
-                username=F('added_by__username'),
-                role=F('added_by__profile__role'),
-                full_name=F('added_by__profile__full_name')
-            ).values('username', 'role', 'full_name').annotate(total_deposits=Sum('amount'))
+            user_deposits = (
+                Transaction.objects
+                .filter(
+                    transaction_type='deposit',
+                    transaction_date__date__gte=start_date,
+                    transaction_date__date__lt=end_date,
+                    added_by__profile__role__in=['admin', 'cashier', 'manager']
+                )
+                .annotate(
+                    username=F('added_by__username'),
+                    role=F('added_by__profile__role'),
+                    full_name=F('added_by__profile__full_name')
+                )
+                .values('username', 'role', 'full_name')
+                .annotate(total_deposits=Sum('amount'))
+            )
 
             # Calculate total customers added by each staff member
-            user_customers = Customer.objects.filter(
-                added_by__profile__role__in=['admin', 'cashier', 'manager'],
-                created_date__range=(start_date, end_date)
-            ).values('added_by__username').annotate(total_customers=Count('id'))
+            user_customers = (
+                Customer.objects
+                .filter(
+                    added_by__profile__role__in=['admin', 'cashier', 'manager'],
+                    created_date__date__gte=start_date,
+                    created_date__date__lt=end_date
+                )
+                .values('added_by__username')
+                .annotate(total_customers=Count('id'))
+            )
 
             # Combine both querysets to include total customers in the user_deposits queryset
             user_deposits = user_deposits.annotate(
-                total_customers=Coalesce(Subquery(
-                    user_customers.filter(added_by__username=OuterRef('username')).values('total_customers')[:1]
-                ), 0)
+                total_customers=Coalesce(
+                    Subquery(
+                        user_customers.filter(added_by__username=OuterRef('username')).values('total_customers')[:1]
+                    ),
+                    0
+                )
             )
 
             context = {
-                'form': form,
-                'user_deposits':user_deposits,
+                'user_deposits': user_deposits,
                 'start_date': start_date,
-                'end_date': end_date,
+                'end_date': end_date - timedelta(days=1),  # Exclude the extra day added
                 'total_customers': total_customers,
                 'total_deposits': total_deposits,
                 'total_withdrawals': total_withdrawals,
@@ -937,12 +977,12 @@ def generate_admin_report(request):
                 'withdrawal_requests': withdrawal_requests,
                 'cashier_manager_activity': cashier_manager_activity,
                 'new_customers': new_customers,
-                'page_title':'Admin Report',
+                'page_title': 'Admin Report',
             }
 
             return render(request, 'savings/admin_report.html', context)
     else:
-        form = DateRangeForm()
+        form = StaffActivityDateRangeForm()
 
     context = {'form': form}
     return render(request, 'savings/admin_report.html', context)
