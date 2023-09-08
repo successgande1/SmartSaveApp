@@ -814,7 +814,7 @@ def report_types_view(request):
 #Search Transaction using Date Range by User View
 @user_passes_test(lambda u: u.is_superuser or u.profile.role == 'admin', login_url='accounts-login')
 def user_transaction_report_view(request):
-    if request.method == 'POST':
+    if request.method == 'POST': 
         form = UserTransactionReportForm(request.POST)
         if form.is_valid():
             user_id = form.cleaned_data['user']

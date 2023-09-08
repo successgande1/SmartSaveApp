@@ -58,7 +58,15 @@
                                                   </tr>
                                                   <tr>
                                                     <th scope="row">Role</th>
-                                                    <td>{{user.profile.role|capfirst}}</td>                                   
+                                                    
+                                                    <td>
+                                                      {% if user.is_superuser %}
+                                                      Super Admin
+                                                      {% else %}
+                                                      {{user.profile.role|capfirst}}
+                                                      {% endif %} 
+                                                    </td> 
+                                                                                     
                                                   </tr>   
                                      
                                                   <tr>

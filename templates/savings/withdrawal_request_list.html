@@ -24,10 +24,10 @@
             <ul class="db-breadcrumb-list">
                 <li><a href="#"><i class="fa fa-home"></i>Home</a></li>
                 <li style="color: blue;">{{page_title}}</li>
-               
+               {% if customers %}
                 <li> <span style="color:red; font-family:sans-serif; font-size:1.2rem;"> {{number_pending_request}} Customers Requested:</span> </li>
                 <li><a class="btn btn-info deposit-button" style="display: block; color:white; font-size:1.2rem;">N{{current_month_pending_requests_total | intcomma}} </a></li>
-                
+                {% endif %}
               </ul>
         </div>	
 
@@ -105,7 +105,7 @@
                               
 <!--##############################################################################################################-->
                                 <!--WITHDRAWAL REQUEST LIST STARTS HERE-->
-                               
+                               {% if customers %}
 
                                 {% for customer in customers %}
                                 <tr>
@@ -121,15 +121,13 @@
 
                                   <td wrap>{{ customer.request_date|naturaltime }}</td>
 
-                                  <td>
-                                    <div class="button-container">
-                                        <a class="btn btn-info deposit-button" href="">
+                                  <td style="color:green;">
+                                   
                                             N{{ customer.customer.account_balance|intcomma }}
-                                       </a> 
-                                       </div>
-                                    </td>
+                                      
+                                  </td>
 
-                                  <td style="color:blue;">N{{ customer.amount|intcomma }}</td>
+                                  <td style="color:red;">N{{ customer.amount|intcomma }}</td>
 
                                   
                                   
@@ -161,8 +159,14 @@
                                       {% endif %}
                                     </td>
                                   </tr>  
-                                
-                                
+                                {% else %}
+                                <tr>
+                                  <td colspan="5"></td>
+                                  <td>
+                                    <span style="color:red;">No Request Found</span>
+                                  </td>
+                                </tr>
+                                {% endif %}
                               </tbody>
                           </table>
                             

@@ -151,23 +151,27 @@ class ReportForm(forms.Form): #Deposit, Withdrawal and Service Charge Search For
     start_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}), initial=timezone.now().date())
     end_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}), initial=timezone.now().date())
 
-class UserTransactionReportForm(forms.Form): #Admin User Date Range Transaction Form for All Users
+class UserTransactionReportForm(forms.Form):
     TRANSACTION_CHOICES = [
         ('deposit', 'Deposit'),
         ('withdraw', 'Withdraw'),
         ('service_charge', 'Service Charge'),
     ]
 
-    users = User.objects.filter(
-        profile__role__in=['admin', 'cashier', 'manager'],
-        profile__is_active=True
-    )  # Get users with the specified profile role and active status
-    user_choices = [(user.id, user.username) for user in users]
-
-    user = forms.ChoiceField(choices=user_choices, required=True)
     transaction_type = forms.ChoiceField(choices=TRANSACTION_CHOICES, required=True)
     start_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}), initial=timezone.now().date())
     end_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}), initial=timezone.now().date())
+
+    def __init__(self, *args, **kwargs):
+        super(UserTransactionReportForm, self).__init__(*args, **kwargs)
+        
+        # Generate the user_choices dynamically
+        users = User.objects.filter(
+            profile__role__in=['admin', 'cashier', 'manager'],
+            profile__is_active=True
+        )
+        self.fields['user'] = forms.ChoiceField(choices=[(user.id, user.username) for user in users], required=True)
+
 
 
 class DateRangeForm(forms.Form):  #Admin User Date Range Report Form

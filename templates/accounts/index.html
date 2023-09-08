@@ -19,7 +19,7 @@
     <div class="container-fluid">
         <div class="db-breadcrumb">
             <h4 class="breadcrumb-title" style="color: rgb(4, 149, 16);">Hello! 
-                {% if user.superuser  %}
+                {% if user.is_superuser  %}
                 Super admin
                 {% elif user.profile.role  %}
                 {{user.profile.role |capfirst}} 
