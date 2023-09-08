@@ -154,7 +154,7 @@ def customer_deposit(request, pk):
             )
 
             messages.success(request, f'N{deposit_amount} Deposited Successfully for Acct. No:{customer.account_number}')
-            return redirect('transaction-list')
+            return redirect('customer-list')
     else:
         form = DepositForm()
     
