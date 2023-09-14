@@ -36,6 +36,7 @@
         
         
         <!--Search Transaction Container Start-->
+        {% if not transactions %}
         <div class="container">
             <div class="row my-4">
 
@@ -61,7 +62,8 @@
               </div>
 
             </div>
-          </div>
+        </div>
+        {% endif %}
           <!--Search Transaction Container End-->
 
           <!--List Transaction Container Start-->
